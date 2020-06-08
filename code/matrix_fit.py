@@ -12,42 +12,43 @@ import datetime
 SHOWPLOTS = False         # display plots at end of fits
 OSC = True                # include oscillating states 
 NOISE = False             # check fit quality by adding noise
-WRITE_LOG = True          # write out a log file with results and parameters.
+WRITE_LOG = False          # write out a log file with results and parameters.
 # ------------------------------------------------------------------------------------
 
 
 SRC = ['l', 'g']            # labels for the sources     
-KEYFMT = 'onemp.{s1}{s2}'   # keys
+KEYFMT = 'pion.{s1}{s2}'   # keys
 T = 96                      # temporal extent of lattice
 TDATA = range(T)
-SVDCUT = 0.001
-NEXP = 13                   # number of exponentials in fit
-diag = 12                   # start fit from here for diagonal elements (ll, gg)
-offdiag = 28                # fit for off diagonal elements (gl, lg etc.)
-t0 = 9                      # initial timeslice to generate priors
+SVDCUT = 0.0005
+NEXP = range(1,13)            # number of exponentials in fit
+diag = 11                   # start fit from here for diagonal elements (ll, gg)
+offdiag = 24                # fit for off diagonal elements (gl, lg etc.)
+t0 = 3                      # initial timeslice to generate priors
 
 tag = KEYFMT[:-8]           # with a . "onemp."
 ttag = tag[:-1]             # no .     "onemp"
 otag = ttag + '_o.'         # oscillating tags "onemp_o."
 
-corr = 'Hy_m0.450_doublysmeared_lrho.txt'                                       # filename
-file = os.path.join('proc_corrs', 'l3296f211b630m0074m037m440-coul-v5', corr)   # path to file
+corr = 'comb_Hy_m0.450.txt'   # filename
+log_folder = 'l3296f211b630m0074m037m440-coul-v5'
+file = os.path.join('../data/proc_corrs', log_folder, corr)   # path to file
 
 
 log_name =  'LOG' + '_' + corr       # name of log file.
 if WRITE_LOG:
-    l = open('log/'+log_name, 'w+')
+    l = open('../log/'+log_folder+'/'+log_name, 'w+')
 
 
 def main():
     data, basis = make_data(file)
     fitter = cf.CorrFitter(models=make_models())
     p0 = None
-    for N in [NEXP]:
+    for N in NEXP:
         print(30 * '=', 'nterm =', N)
         prior = make_prior(N, basis)
         fit = fitter.lsqfit(data=data, prior=prior, p0=p0, svdcut=SVDCUT)
-        print(fit.format(pstyle=None if N < 7 else 'm'))
+        print(fit.format(pstyle=None if N < 12 else 'm'))
         p0 = fit.pmean
     print_results(fit, basis, prior, data)
     if WRITE_LOG:
@@ -122,7 +123,14 @@ def print_results(fit, basis, prior, data):
     #    print('{:13}{}'.format(k, list(prior_eig[k])))
     
 def write_results(fit, basis, prior, data, N):
-    l.write(30 * '=' + '\n' + 'nterm = ' +  str(N) + '\n')
+    l.write('Parameters used: ' + '\n')
+    l.write('file: '+ file + '\n')
+    l.write('t0: '+ str(t0) + '\n')
+    l.write('T: '+ str(T) + '\n')
+    l.write('t_diag: '+ str(diag) + '\n')
+    l.write('t_offdiag: '+ str(offdiag) + '\n\n')
+
+    l.write(30 * '=' + '\n' + 'nterm = ' +  str(N[-1]) + '\n')
     l.write(fit.format(pstyle=None if N < 7 else 'm'))
     
     l.write(30 * '=' + ' Results\n')
