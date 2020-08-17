@@ -4,3 +4,4 @@ log/*
 code/*.pyc
 filenames.txt
 misc-code/*
+code/__pycache__
