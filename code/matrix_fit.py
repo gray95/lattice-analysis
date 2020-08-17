@@ -4,7 +4,6 @@ import collections
 import gvar as gv
 import numpy as np
 import corrfitter as cf
-import matplotlib
 import os
 import datetime
 
@@ -12,26 +11,30 @@ import datetime
 SHOWPLOTS = False         # display plots at end of fits
 OSC = True                # include oscillating states 
 NOISE = False             # check fit quality by adding noise
-WRITE_LOG = False          # write out a log file with results and parameters.
+WRITE_LOG = True					# write out a log file with results and parameters.
 # ------------------------------------------------------------------------------------
 
 
+
 SRC = ['l', 'g']            # labels for the sources     
-KEYFMT = 'pion.{s1}{s2}'   # keys
+KEYFMT = 'onemp.{s1}{s2}'   # keys
 T = 96                      # temporal extent of lattice
 TDATA = range(T)
 SVDCUT = 0.0005
 NEXP = range(1,13)            # number of exponentials in fit
-diag = 11                   # start fit from here for diagonal elements (ll, gg)
-offdiag = 24                # fit for off diagonal elements (gl, lg etc.)
-t0 = 3                      # initial timeslice to generate priors
+diag = 1                      # start fit from here for diagonal elements (ll, gg)
+offdiag = 24			            # fit for off diagonal elements (gl, lg etc.)
+t0 = 2                        # initial timeslice to generate priors
+
+c_hack = -1 									# sometimes -1 needed to generate priors
 
 tag = KEYFMT[:-8]           # with a . "onemp."
 ttag = tag[:-1]             # no .     "onemp"
 otag = ttag + '_o.'         # oscillating tags "onemp_o."
 
-corr = 'comb_Hy_m0.450.txt'   # filename
-log_folder = 'l3296f211b630m0074m037m440-coul-v5'
+
+corr = 'comb8_onempHy_m0.450.txt'   
+log_folder = 'l3296f211b630m0074m037m440-coul-v5-new'
 file = os.path.join('../data/proc_corrs', log_folder, corr)   # path to file
 
 
@@ -70,7 +73,7 @@ def main():
     #print('          ', gv.fmt_chi2(gv.chi2(dE - noisy_dE)))
 
 def make_data(filename):
-    data = gv.dataset.avg_data(cf.read_dataset(filename, grep=tag[:-1]))            # sometimes *-1 forces fit
+    data = c_hack*gv.dataset.avg_data(cf.read_dataset(filename, grep=ttag))        
     basis = cf.EigenBasis(data, keyfmt=KEYFMT, srcs=SRC, t=(t0, t0+2), tdata=TDATA)
     return data, basis
 
