@@ -11,34 +11,40 @@ import datetime
 SHOWPLOTS = False         # display plots at end of fits
 OSC = True                # include oscillating states 
 NOISE = False             # check fit quality by adding noise
-WRITE_LOG = True					# write out a log file with results and parameters.
+WRITE_LOG = True 					# write out a log file with results and parameters.
 # ------------------------------------------------------------------------------------
 
 
 
 SRC = ['l', 'g']            # labels for the sources     
+#SRC = ['H', 'R', 'h', 'r']
 KEYFMT = 'onemp.{s1}{s2}'   # keys
 T = 96                      # temporal extent of lattice
 TDATA = range(T)
 SVDCUT = 0.0005
 NEXP = range(1,13)            # number of exponentials in fit
-diag = 1                      # start fit from here for diagonal elements (ll, gg)
-offdiag = 24			            # fit for off diagonal elements (gl, lg etc.)
-t0 = 2                        # initial timeslice to generate priors
 
-c_hack = -1 									# sometimes -1 needed to generate priors
+tmin = 4               # start fit from here for diagonal elements (ll, gg,..)
+tmax = 14
+offtmin = 12					# off-diagonal elements (lg, gl,..)
+offtmax = 18            
+t0 = 2                      # initial timeslice to generate priors
+
+c_hack =  -1 									# sometimes -1 needed to generate priors
 
 tag = KEYFMT[:-8]           # with a . "onemp."
 ttag = tag[:-1]             # no .     "onemp"
 otag = ttag + '_o.'         # oscillating tags "onemp_o."
 
 
-corr = 'comb8_onempHy_m0.450.txt'   
-log_folder = 'l3296f211b630m0074m037m440-coul-v5-new'
+corr = 't0_onempHy_m0.450.txt'  
+ 
+log_folder = 'l3296f211b630m0074m037m440-coul-v5'
 file = os.path.join('../data/proc_corrs', log_folder, corr)   # path to file
 
 
-log_name =  'LOG' + '_' + corr       # name of log file.
+log_name =  'LOG' + '_' + 'test'	# corr       # name of log file.
+l = None
 if WRITE_LOG:
     l = open('../log/'+log_folder+'/'+log_name, 'w+')
 
@@ -53,9 +59,7 @@ def main():
         fit = fitter.lsqfit(data=data, prior=prior, p0=p0, svdcut=SVDCUT)
         print(fit.format(pstyle=None if N < 12 else 'm'))
         p0 = fit.pmean
-    print_results(fit, basis, prior, data)
-    if WRITE_LOG:
-        write_results(fit, basis, prior, data, NEXP)
+    print_results(fit, basis, prior, data, l)
     if SHOWPLOTS:
         fit.show_plots(save='etac.{}.png', view='ratio')
 
@@ -81,7 +85,7 @@ def make_models():
     models = []
     for i, s1 in enumerate(SRC):
         for s2 in SRC[i:]:
-            tfit = TDATA[diag:-diag] if s1 == s2 else TDATA[offdiag:-offdiag]
+            tfit=TDATA[tmin:tmax] if s1 == s2 else TDATA[offtmin:offtmax]
             otherdata = None if s1 == s2 else KEYFMT.format(s1=s2, s2=s1)
             if OSC:
                 models.append(cf.Corr2(datatag=KEYFMT.format(s1=s1, s2=s2),tdata=TDATA, tfit=tfit, tp=T,
@@ -100,11 +104,23 @@ def make_prior(N, basis):
     return prior
             
     
-def print_results(fit, basis, prior, data):
-    print(30 * '=', 'Results\n')
-    print(basis.tabulate(fit.p, keyfmt=tag+'{s1}'))
+def print_results(fit, basis, prior, data, logfile=None):
+    
+    if WRITE_LOG:
+      l.write('Parameters used: ' + '\n')
+      l.write('file: '+ file + '\n')
+      l.write('t0: '+ str(t0) + '\n')
+      l.write('T: '+ str(T) + '\n')
+      l.write('tmin: '+ str(tmin) + '\n')
+      l.write('tmax: '+ str(tmax) + '\n\n')
+      l.write('offtmin: '+ str(offtmin) + '\n')
+      l.write('offtmax: '+ str(offtmax) + '\n\n')
+      l.write(30 * '=' + '\n' + 'nterm = ' +  str(NEXP[-1]) + '\n')
+    print(fit.format(pstyle='m'), file=logfile)
+    print(30 * '=', 'Results\n', file=logfile)
+    print(basis.tabulate(fit.p, keyfmt=tag+'{s1}'), file=logfile)
     if OSC:
-      print(basis.tabulate(fit.p, keyfmt=otag+'{s1}'))
+      print(basis.tabulate(fit.p, keyfmt=otag+'{s1}'), file=logfile)
     #print(basis.tabulate(fit.p, keyfmt=tag+'{s1}', eig_srcs=True))
     E = np.cumsum(fit.p[tag+'dE'])
     outputs = collections.OrderedDict()
@@ -115,46 +131,17 @@ def print_results(fit, basis, prior, data):
     inputs['prior'] = prior
     inputs['data'] = data
     inputs['svdcut'] = fit.svdcorrection
-    print(gv.fmt_values(outputs))
-    print(gv.fmt_errorbudget(outputs, inputs, colwidth=18))
-    print('Prior:\n')
+    print(gv.fmt_values(outputs), file=logfile)
+    print(gv.fmt_errorbudget(outputs, inputs, colwidth=18), file=logfile)
+    print('Prior:\n', file=logfile)
     for k in [tag+SRC[0], tag+SRC[1]]:
-        print('{:13}{}'.format(k, list(prior[k])))
-    print()
+        print('{:13}{}'.format(k, list(prior[k])), file=logfile)
+    #print()
     #prior_eig = basis.apply(prior, keyfmt='onemp.{s1}')
     #for k in [tag+SRC[0], tag+SRC[1]]:
     #    print('{:13}{}'.format(k, list(prior_eig[k])))
-    
-def write_results(fit, basis, prior, data, N):
-    l.write('Parameters used: ' + '\n')
-    l.write('file: '+ file + '\n')
-    l.write('t0: '+ str(t0) + '\n')
-    l.write('T: '+ str(T) + '\n')
-    l.write('t_diag: '+ str(diag) + '\n')
-    l.write('t_offdiag: '+ str(offdiag) + '\n\n')
-
-    l.write(30 * '=' + '\n' + 'nterm = ' +  str(N[-1]) + '\n')
-    l.write(fit.format(pstyle=None if N < 7 else 'm'))
-    
-    l.write(30 * '=' + ' Results\n')
-    l.write(basis.tabulate(fit.p, keyfmt=tag+'{s1}'))
-    if OSC:
-      l.write(basis.tabulate(fit.p, keyfmt=otag+'{s1}'))
-    E = np.cumsum(fit.p[tag+'dE'])
-    outputs = collections.OrderedDict()
-    outputs['a*E(2s-1s)'] = E[1] - E[0]
-    outputs['a*E(3s-1s)'] = E[2] - E[0]
-    outputs['E(3s-1s)/E(2s-1s)'] = (E[2] - E[0]) / (E[1] - E[0])
-    inputs = collections.OrderedDict()
-    inputs['prior'] = prior
-    inputs['data'] = data
-    inputs['svdcut'] = fit.svdcorrection
-    l.write(gv.fmt_values(outputs))
-    l.write(gv.fmt_errorbudget(outputs, inputs, colwidth=18))
-    l.write('Prior:\n')
-    for k in [tag+SRC[0], tag+SRC[1]]:
-        l.write('{:8}{}\n'.format(k, list(prior[k])))
-    
+    l.close()
+   
         
 if __name__ == '__main__':
     gv.ranseed(1234)
