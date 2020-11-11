@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 
 bp = '../data/proc_corrs'
 conf1= 'l3296f211b630m0074m037m440-coul-v5'
-conf2= 'l3296f211b630m0074m037m440-coul-v5-new'
+conf2= 'l3296f211b630m0074m037m440-coul-v5'
 #l3296f211b630m0074m037m440-coul-v5-new
 
 filenames = ['PION_PS_m0.450.txt', 't0_onempHy_m0.450.txt']

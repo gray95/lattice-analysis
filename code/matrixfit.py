@@ -11,39 +11,39 @@ import datetime
 SHOWPLOTS = False         # display plots at end of fits
 OSC = True                # include oscillating states 
 NOISE = False             # check fit quality by adding noise
-WRITE_LOG = True 					# write out a log file with results and parameters.
+WRITE_LOG = False 					# write out a log file with results and parameters.
 # ------------------------------------------------------------------------------------
 
 
 
-SRC = ['l', 'g']            # labels for the sources     
-#SRC = ['H', 'R', 'h', 'r']
-KEYFMT = 'onemp.{s1}{s2}'   # keys
+#SRC = ['l', 'g']            # labels for the sources     
+SRC = ['H', 'R', 'h', 'r']
+KEYFMT = 'onemm.{s1}{s2}'   # keys
 T = 96                      # temporal extent of lattice
 TDATA = range(T)
 SVDCUT = 0.0005
 NEXP = range(1,13)            # number of exponentials in fit
 
 tmin = 4               # start fit from here for diagonal elements (ll, gg,..)
-tmax = 14
-offtmin = 12					# off-diagonal elements (lg, gl,..)
-offtmax = 18            
-t0 = 2                      # initial timeslice to generate priors
+tmax = 10
+offtmin = 10					# off-diagonal elements (lg, gl,..)
+offtmax = 14            
+t0 = 4                      # initial timeslice to generate priors
 
-c_hack =  -1 									# sometimes -1 needed to generate priors
+c_hack =  1 									# sometimes -1 needed to generate priors
 
 tag = KEYFMT[:-8]           # with a . "onemp."
 ttag = tag[:-1]             # no .     "onemp"
 otag = ttag + '_o.'         # oscillating tags "onemp_o."
 
 
-corr = 't0_onempHy_m0.450.txt'  
+corr = 't36_onemmHy_vec_m0.450.txt'  
  
 log_folder = 'l3296f211b630m0074m037m440-coul-v5'
 file = os.path.join('../data/proc_corrs', log_folder, corr)   # path to file
 
 
-log_name =  'LOG' + '_' + 'test'	# corr       # name of log file.
+log_name =  'LOG' + '_' + corr	     # name of log file.
 l = None
 if WRITE_LOG:
     l = open('../log/'+log_folder+'/'+log_name, 'w+')
@@ -140,7 +140,8 @@ def print_results(fit, basis, prior, data, logfile=None):
     #prior_eig = basis.apply(prior, keyfmt='onemp.{s1}')
     #for k in [tag+SRC[0], tag+SRC[1]]:
     #    print('{:13}{}'.format(k, list(prior_eig[k])))
-    l.close()
+    if WRITE_LOG:
+			l.close()
    
         
 if __name__ == '__main__':
