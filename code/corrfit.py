@@ -53,7 +53,7 @@ def make_prior(N):
     #----------OSC PARAMS-------------#
     if OSC:
       prior['ao'] = gv.gvar(['1.00(0.99)'] + (N-1)*['0.01(0.99)'])    
-      prior['log(dEo)'] = gv.log(gv.gvar(['2.0(1.5)'] + (N-1)*['0.3(2)']))
+      prior['log(dEo)'] = gv.log(gv.gvar(['2.0(1.0)'] + (N-1)*['0.3(2)']))
     return prior
 
 def print_results(fit):

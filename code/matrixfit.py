@@ -11,12 +11,12 @@ import datetime
 SHOWPLOTS = False         # display plots at end of fits
 OSC = True                # include oscillating states 
 NOISE = False             # check fit quality by adding noise
-WRITE_LOG = False 					# write out a log file with results and parameters.
+WRITE_LOG = True 					# write out a log file with results and parameters.
 # ------------------------------------------------------------------------------------
 
 
 
-#SRC = ['l', 'g']            # labels for the sources     
+#SRC = ['R', 'H']            # labels for the sources     
 SRC = ['H', 'R', 'h', 'r']
 KEYFMT = 'onemm.{s1}{s2}'   # keys
 T = 96                      # temporal extent of lattice
@@ -25,28 +25,28 @@ SVDCUT = 0.0005
 NEXP = range(1,13)            # number of exponentials in fit
 
 tmin = 4               # start fit from here for diagonal elements (ll, gg,..)
-tmax = 10
+tmax = 10 
 offtmin = 10					# off-diagonal elements (lg, gl,..)
 offtmax = 14            
 t0 = 4                      # initial timeslice to generate priors
 
-c_hack =  1 									# sometimes -1 needed to generate priors
+c_hack = 1 									# sometimes -1 needed to generate priors
 
 tag = KEYFMT[:-8]           # with a . "onemp."
 ttag = tag[:-1]             # no .     "onemp"
 otag = ttag + '_o.'         # oscillating tags "onemp_o."
 
 
-corr = 't36_onemmHy_vec_m0.450.txt'  
+corr = 'comb8_onemmHy_vec_m0.450.txt'  
  
 log_folder = 'l3296f211b630m0074m037m440-coul-v5'
 file = os.path.join('../data/proc_corrs', log_folder, corr)   # path to file
 
 
-log_name =  'LOG' + '_' + corr	     # name of log file.
+log_name =  'LOG_' + corr 	     # name of log file.
 l = None
 if WRITE_LOG:
-    l = open('../log/'+log_folder+'/'+log_name, 'w+')
+    l = open('../log/'+log_folder+'/'+log_name, 'w')
 
 
 def main():
@@ -118,9 +118,9 @@ def print_results(fit, basis, prior, data, logfile=None):
       l.write(30 * '=' + '\n' + 'nterm = ' +  str(NEXP[-1]) + '\n')
     print(fit.format(pstyle='m'), file=logfile)
     print(30 * '=', 'Results\n', file=logfile)
-    print(basis.tabulate(fit.p, keyfmt=tag+'{s1}'), file=logfile)
+    print(basis.tabulate(fit.p, keyfmt=tag+'{s1}', nterm=9), file=logfile)
     if OSC:
-      print(basis.tabulate(fit.p, keyfmt=otag+'{s1}'), file=logfile)
+      print(basis.tabulate(fit.p, keyfmt=otag+'{s1}', nterm=9), file=logfile)
     #print(basis.tabulate(fit.p, keyfmt=tag+'{s1}', eig_srcs=True))
     E = np.cumsum(fit.p[tag+'dE'])
     outputs = collections.OrderedDict()
@@ -141,7 +141,7 @@ def print_results(fit, basis, prior, data, logfile=None):
     #for k in [tag+SRC[0], tag+SRC[1]]:
     #    print('{:13}{}'.format(k, list(prior_eig[k])))
     if WRITE_LOG:
-			l.close()
+		    l.close()
    
         
 if __name__ == '__main__':

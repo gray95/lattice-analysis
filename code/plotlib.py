@@ -64,7 +64,7 @@ def calc_meff(corr, nt, no_config):
           meff = m.log(now/inc)
           jerr = jackknife(tmp,no_config)
        else:
-          meff = -1
+          meff = 0.0
           jerr = 0.0
 
        mm[t]     = meff
@@ -94,7 +94,7 @@ def plot_corr(c, KEY, SAVEFIG):
     plt.subplot(211)
     plt.errorbar(range(len(corr_mean)),[abs(corr_mean[q]) for q in range(len(corr_mean))], fmt='bo', yerr=None  , alpha=0.5, markersize=2)
     plt.yscale('log', nonposy='clip')
-    plt.title(r'$1^{-+}$ mean correlator')  
+    plt.title(r'hyb-hyb $1^{--}$ mean correlator')  
     plt.ylabel(r'$\langle 0|e^{-HT}|0 \rangle$')
     
     E = []
@@ -113,13 +113,13 @@ def plot_corr(c, KEY, SAVEFIG):
     plt.xlabel('t')
     plt.ylabel('meff')
     plt.xlim(0,nt//4)
-    plt.ylim(-2,6)
-    plt.yticks(np.arange(-2, 6, 1))
+    plt.ylim(0,4)
+    plt.yticks(np.arange(0, 4, 0.5))
     plt.xticks(np.arange(0, nt//4, 1))
     plt.grid(axis='y')
     
     if SAVEFIG :
-      plt.savefig((corrtag + '.png'), dpi=600)
+      plt.savefig(('../figures/'+corrtag+'_'+KEY+'.png'), dpi=600)
     
     
     plt.show()
