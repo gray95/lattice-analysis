@@ -11,24 +11,24 @@ import datetime
 SHOWPLOTS = False         # display plots at end of fits
 OSC = True                # include oscillating states 
 NOISE = False             # check fit quality by adding noise
-WRITE_LOG = True 					# write out a log file with results and parameters.
+WRITE_LOG = False 					# write out a log file with results and parameters.
 # ------------------------------------------------------------------------------------
 
 
 
-#SRC = ['R', 'H']            # labels for the sources     
-SRC = ['H', 'R', 'h', 'r']
-KEYFMT = 'onemm.{s1}{s2}'   # keys
-T = 96                      # temporal extent of lattice
+SRC = ['l', 'g']            # labels for the sources     
+#SRC = ['H', 'R', 'h', 'r']
+KEYFMT = 'onemp.{s1}{s2}'   # keys
+T = 48                      # temporal extent of lattice
 TDATA = range(T)
 SVDCUT = 0.0005
 NEXP = range(1,13)            # number of exponentials in fit
 
-tmin = 4               # start fit from here for diagonal elements (ll, gg,..)
-tmax = 10 
-offtmin = 10					# off-diagonal elements (lg, gl,..)
-offtmax = 14            
-t0 = 4                      # initial timeslice to generate priors
+tmin = 7               # start fit from here for diagonal elements (ll, gg,..)
+tmax = 14 
+offtmin = 14					# off-diagonal elements (lg, gl,..)
+offtmax = 20            
+t0 = 5                      # initial timeslice to generate priors
 
 c_hack = 1 									# sometimes -1 needed to generate priors
 
@@ -37,9 +37,9 @@ ttag = tag[:-1]             # no .     "onemp"
 otag = ttag + '_o.'         # oscillating tags "onemp_o."
 
 
-corr = 'comb8_onemmHy_vec_m0.450.txt'  
+corr = 't0_onemp_ranwall_m0.8447.txt'  
  
-log_folder = 'l3296f211b630m0074m037m440-coul-v5'
+log_folder = 'l3248f211b580m002426m06730m8447/a'
 file = os.path.join('../data/proc_corrs', log_folder, corr)   # path to file
 
 

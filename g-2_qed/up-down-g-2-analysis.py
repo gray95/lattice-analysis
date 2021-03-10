@@ -32,19 +32,19 @@ DISPLAYPLOTS = False
 hbarc = 0.197326968
 
 def main():
-    dfile = 'rho_vcphys_bothcharges_up_down.gpl'
-    tag01 = 'uncharged-up'
-    tag02 = 'charged-up'
-    tag03 = 'uncharged-down'
-    tag04 = 'charged-down'
+    dfile = '/home/gray/Desktop/lattice-analysis/data/qed/rho_3ml.gpl'
+    tag01 = 'rho_m0.007278'
+    tag02 = 'rho_m0.007278_ucav'
+    tag03 = 'rho_m0.007278'
+    tag04 = 'rho_m0.007278_dcav'
 
     T = 48
     madedata = make_data(dfile,norm=3.) # factor of 3 for colour (missed in extraction)
     data = madedata[0]
 
     ratiodata = {}
-    ratiodata['up'] = data['charged-up']/data['uncharged-up']
-    ratiodata['down'] = data['charged-down']/data['uncharged-down']
+    ratiodata['up'] = data[tag02]/data[tag01]
+    ratiodata['down'] = data[tag04]/data[tag03]
 
     suggestedsvdcut = madedata[1]
     
@@ -64,39 +64,39 @@ def main():
     tfit = range(tmin,T+1-tmin) # all ts
     tp = T
 
-    tstar = 14
+    tstar = 17
 
     tcut = 200
 
     newdata = {}
 
-    newdata['uncharged-up'] = data['uncharged-up'][:tstar]
-    newdata['charged-up'] = data['charged-up'][:tstar]
-    newdata['uncharged-down'] = data['uncharged-down'][:tstar]
-    newdata['charged-down'] = data['charged-down'][:tstar]
+    newdata[tag01] = data[tag01][:tstar]
+    newdata[tag02] = data[tag02][:tstar]
+    newdata[tag03] = data[tag03][:tstar]
+    newdata[tag04] = data[tag04][:tstar]
 
 
     # do replacement of data with fit
 
-    fitdataunchargedup = Corr2(datatag='uncharged-up',tdata=range(48),a=('a1:vec:u','ao:vec:u'),b=('a1:vec:u','ao:vec:u'),dE=('dE:vec:u','dEo:vec:u'),s=(1.,-1.)).fitfcn(fit.p)
-    fitdataunchargeddown = Corr2(datatag='uncharged-down',tdata=range(48),a=('a1:vec:d','ao:vec:d'),b=('a1:vec:d','ao:vec:d'),dE=('dE:vec:d','dEo:vec:d'),s=(1.,-1.)).fitfcn(fit.p)
+    fitdataunchargedup = Corr2(datatag=tag01,tdata=range(48),a=('a1:vec:u','ao:vec:u'),b=('a1:vec:u','ao:vec:u'),dE=('dE:vec:u','dEo:vec:u'),s=(1.,-1.)).fitfcn(fit.p)
+    fitdataunchargeddown = Corr2(datatag=tag03,tdata=range(48),a=('a1:vec:d','ao:vec:d'),b=('a1:vec:d','ao:vec:d'),dE=('dE:vec:d','dEo:vec:d'),s=(1.,-1.)).fitfcn(fit.p)
     for index in range(48):
             if index >= tcut:
-                newdata['uncharged-up'] = np.append(newdata['uncharged-up'],0.)
-                newdata['uncharged-down'] = np.append(newdata['uncharged-down'],0.)
+                newdata[tag01] = np.append(newdata[tag01],0.)
+                newdata[tag03] = np.append(newdata[tag03],0.)
             elif index >= tstar:
-                newdata['uncharged-up'] = np.append(newdata['uncharged-up'],fitdataunchargedup[index])
-                newdata['uncharged-down'] = np.append(newdata['uncharged-down'],fitdataunchargeddown[index])
+                newdata[tag01] = np.append(newdata[tag01],fitdataunchargedup[index])
+                newdata[tag03] = np.append(newdata[tag03],fitdataunchargeddown[index])
 
-    fitdatachargedup = Corr2(datatag='charged-up',tdata=range(48),a=('a1:vec:qed:u','ao:vec:qed:u'),b=('a1:vec:qed:u','ao:vec:qed:u'),dE=('dE:vec:qed:u','dEo:vec:qed:u'),s=(1.,-1.)).fitfcn(fit.p)
-    fitdatachargedown = Corr2(datatag='charged-down',tdata=range(48),a=('a1:vec:qed:d','ao:vec:qed:d'),b=('a1:vec:qed:d','ao:vec:qed:d'),dE=('dE:vec:qed:d','dEo:vec:qed:d'),s=(1.,-1.)).fitfcn(fit.p)
+    fitdatachargedup = Corr2(datatag=tag02,tdata=range(48),a=('a1:vec:qed:u','ao:vec:qed:u'),b=('a1:vec:qed:u','ao:vec:qed:u'),dE=('dE:vec:qed:u','dEo:vec:qed:u'),s=(1.,-1.)).fitfcn(fit.p)
+    fitdatachargedown = Corr2(datatag=tag04,tdata=range(48),a=('a1:vec:qed:d','ao:vec:qed:d'),b=('a1:vec:qed:d','ao:vec:qed:d'),dE=('dE:vec:qed:d','dEo:vec:qed:d'),s=(1.,-1.)).fitfcn(fit.p)
     for index in range(48):
             if index >= tcut:
-                newdata['charged-up'] = np.append(newdata['charged-up'],0.)
-                newdata['charged-down'] = np.append(newdata['charged-down'],0.)
+                newdata[tag02] = np.append(newdata[tag02],0.)
+                newdata[tag04] = np.append(newdata[tag04],0.)
             elif index >= tstar:
-                newdata['charged-up'] = np.append(newdata['charged-up'],fitdatachargedup[index])
-                newdata['charged-down'] = np.append(newdata['charged-down'],fitdatachargedown[index])
+                newdata[tag02] = np.append(newdata[tag02],fitdatachargedup[index])
+                newdata[tag04] = np.append(newdata[tag04],fitdatachargedown[index])
 
     w0 = gv.gvar('0.1715(9)')
     w0overa = gv.gvar('1.1367(5)')
@@ -106,25 +106,25 @@ def main():
     hbarc = 0.197326968
     a = (w0/w0overa)/hbarc
 
-    moments = g2.moments(newdata['uncharged-up'],Z=ZV,ainv=1/a,periodic=False)
+    moments = g2.moments(newdata[tag01],Z=ZV,ainv=1/a,periodic=False)
     vpol = g2.vacpol(moments,order=(2,1))
     unchargedamuu = g2.a_mu(vpol,2/3.)
 
     print('up a_mu[QCD]: ',unchargedamuu)
  
-    moments = g2.moments(newdata['charged-up'],Z=ZVqed,ainv=1/a,periodic=False)
+    moments = g2.moments(newdata[tag02],Z=ZVqed,ainv=1/a,periodic=False)
     vpol = g2.vacpol(moments,order=(2,1))
     chargedamuu = g2.a_mu(vpol,2/3.)
 
     print('up a_mu[QCD+QED]: ',chargedamuu)
 
-    moments = g2.moments(newdata['uncharged-down'],Z=ZV,ainv=1/a,periodic=False)
+    moments = g2.moments(newdata[tag03],Z=ZV,ainv=1/a,periodic=False)
     vpol = g2.vacpol(moments,order=(2,1))
     unchargedamud = g2.a_mu(vpol,1/3.)
 
     print('down a_mu[QCD]: ',unchargedamud)
  
-    moments = g2.moments(newdata['charged-down'],Z=ZVqed,ainv=1/a,periodic=False)
+    moments = g2.moments(newdata[tag04],Z=ZVqed,ainv=1/a,periodic=False)
     vpol = g2.vacpol(moments,order=(2,1))
     chargedamud = g2.a_mu(vpol,1/3.)
 

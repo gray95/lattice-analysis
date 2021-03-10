@@ -1,34 +1,23 @@
-# A short script to relabel the glasgow correlator data so that the tags are more easily fed 
+# A short script to relabel correlator data so that the tags are more easily fed 
 # into LePage's corrfitter code
 
-import numpy as np
 import os
 import sys
+import re
 
-file = os.path.join('glesga','fine_physical','etacjpsiall.gpl')
-corr = np.genfromtxt(file)
+name = 'PION_PS_B_I_c_d_m0.8447b.txt'
+filepath = os.path.join('../data/proc_corrs/l3248f211b580m002426m06730m8447', name)
 
-np.savetxt('text.txt', corr)
 
-f = open('text.txt', 'r')
+f = open(filepath, 'r')
 f1 = f.readlines()
-g = open('etacjpsi-new-new-tags.txt', 'w+')
-
-S = ['l.l', 'l.s1', 'l.s2', 's1.l', 's1.s1', 's1.s2', 's2.l', 's2.s1', 's2.s2']
-ETATAGS = ['etac:'+i for i in S]
-JPSITAGS = ['jpsi:'+i for i in S]
-
-TAGS = ETATAGS + JPSITAGS
-
-count = 0
+g = open('retag_'+name, 'w+')
 
 for x in f1:  
-   x = x.replace('nan', TAGS[count//565])
+   x = re.sub('PION_PS_B_I_c_d_m0.8447', 'onemp_0_src_m0.8447b', x)
    g.write(x)
-   count=count+1
     
 
-# A more elegant way would be to use re.sub, ie a REGEX
 
 
 

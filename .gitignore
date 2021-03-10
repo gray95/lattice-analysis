@@ -7,3 +7,4 @@ filenames.txt
 misc-code/*
 g2tools/*
 code/__pycache__
+*.png
