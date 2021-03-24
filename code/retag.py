@@ -5,16 +5,19 @@ import os
 import sys
 import re
 
-name = 'PION_PS_B_I_c_d_m0.8447b.txt'
-filepath = os.path.join('../data/proc_corrs/l3248f211b580m002426m06730m8447', name)
+base = '../data/qed/vcoarse/dan_b'
 
+name = 'm0.001524_rhox_0.202cav_outcorr.gpl'
+nname = name[25:]
+filepath = os.path.join(base, name)
 
 f = open(filepath, 'r')
 f1 = f.readlines()
-g = open('retag_'+name, 'w+')
+g = open(base + '/retag_'+ name, 'w+')
+
 
 for x in f1:  
-   x = re.sub('PION_PS_B_I_c_d_m0.8447', 'onemp_0_src_m0.8447b', x)
+   x = re.sub('0.001524_GXGX', 'rho_m0.001524_cav', x)
    g.write(x)
     
 

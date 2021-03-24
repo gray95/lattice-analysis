@@ -8,3 +8,5 @@ misc-code/*
 g2tools/*
 code/__pycache__
 *.png
+*.out
+

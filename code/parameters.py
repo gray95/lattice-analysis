@@ -2,7 +2,7 @@
 
 T     = 48
 TDATA = range(T)
-TFIT  = TDATA[6:15]
+TFIT  = TDATA[8:16]
 TP    = T
 NEXP  = range(1,10)
 s_coeff = (-1, 1)
@@ -19,7 +19,7 @@ dir  = '../data/proc_corrs/l3248f211b580m002426m06730m8447/a/'
 # l3296f211b630m0074m037m440-coul-v5
 
 name = 't0_onemp_ranwall_m0.8447.txt'
-key  = 'onemp.gg'    # for fitting, doesn't affect plotting
+key  = 'onemp.gl'    # for fitting, doesn't affect plotting
 
 filename_in = dir + name
 

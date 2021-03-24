@@ -24,20 +24,20 @@ TDATA = range(T)
 SVDCUT = 0.0005
 NEXP = range(1,13)            # number of exponentials in fit
 
-tmin = 7               # start fit from here for diagonal elements (ll, gg,..)
-tmax = 14 
-offtmin = 14					# off-diagonal elements (lg, gl,..)
-offtmax = 20            
-t0 = 5                      # initial timeslice to generate priors
+tmin = 5               # start fit from here for diagonal elements (ll, gg,..)
+tmax = 10 
+offtmin = 12					# off-diagonal elements (lg, gl,..)
+offtmax = 18            
+t0 = 6                      # initial timeslice to generate priors
 
-c_hack = 1 									# sometimes -1 needed to generate priors
+c_hack =  1									# sometimes -1 needed to generate priors
 
 tag = KEYFMT[:-8]           # with a . "onemp."
 ttag = tag[:-1]             # no .     "onemp"
 otag = ttag + '_o.'         # oscillating tags "onemp_o."
 
 
-corr = 't0_onemp_ranwall_m0.8447.txt'  
+corr = 't0_onemp_m0.8447.txt'  
  
 log_folder = 'l3248f211b580m002426m06730m8447/a'
 file = os.path.join('../data/proc_corrs', log_folder, corr)   # path to file

@@ -8,10 +8,10 @@ from corrfitter import Corr2,Corr3,CorrFitter
 import g2tools as g2
 import matplotlib.pyplot as plt
 import copy
-#import h5py
+import sys
 
 # keep data files in one place
-data_dir="."
+data_dir="../data/qed/vcoarse/dan_a"
 pfile = "last_fit_tmp.bin" # last fit
 
 
@@ -39,21 +39,19 @@ def build_prior(nexp,dErho=gv.gvar('0.476(100)')):
 
 def build_models(tmin,length,tag):
     """ build models """
-#    tmin set at top
     tdata = range(length)
-     # all ts
-    tfit = range(tmin,length) # all ts
+    tfit = range(tmin,length-tmin) # all ts
 
     models = [
 
-        Corr2(datatag=tag,tdata=tdata,tfit=tfit,
+        Corr2(datatag=tag,tdata=tdata,tfit=tfit,tp=length,
             a=('a:rho','a:rhoo'),b=('b:rho','b:rhoo'),
             dE=('dE:rho','dE:rhoo'),s=(1,-1)),
 
     ]
 
     return models
-##
+
 
 
 
@@ -71,59 +69,53 @@ dset = (gv.dataset.Dataset(data_dir + '/rho_vcphys_bothcharges_m0.001524.gpl'))
 dsetavg = gv.dataset.avg_data(dset)
 
 
-##print(dsetavg)
-
-tag_ = 'charged-up'
-tstar = 14
-
 def single_fit(tag_, tstar) :
 
   dataf = dsetavg[tag_]
-  tmin = 1
+  tmin = 2
 
    # replace data after t* with fit
    #  t* can be changed
 
 
-  fitter = CorrFitter(models=build_models(tmin,tstar,tag_))
-  svdcut = 1e-10
+  fitter = CorrFitter(models=build_models(tmin,48,tag_))
+  svdcut = 1e-6
 
   for nexp in [4]:
         print('=== nexp =',nexp,' tmin = ',tmin,' svdcut = ',svdcut)
         fit = fitter.lsqfit(data=dsetavg,prior=build_prior(nexp),p0=pfile,maxit=10000,svdcut=svdcut)#,fitter='gsl_multifit')
         print(fit)
 
-
   newdata = dataf[:tstar]
-  fitdata = Corr2(datatag=tag_,tdata=range(21),tfit=range(tmin,21),a=('a:rho','a:rhoo'),b=('b:rho','b:rhoo'),dE=('dE:rho','dE:rhoo'),s=(1,-1)).fitfcn(fit.p)
-  newdata = np.concatenate([np.array(newdata),fitdata[tstar:]])
-##print(newdata)
+  #print("Before append/concatenate")
+  #print(newdata, len(newdata))
+  fitdata = Corr2(datatag=tag_,tdata=range(48),a=('a:rho','a:rhoo'),b=('b:rho','b:rhoo'),dE=('dE:rho','dE:rhoo'),s=(1,-1)).fitfcn(fit.p)
+  newdata = np.append(np.array(newdata),fitdata[tstar:])
+  #print(fitdata[tstar:], fitdata[tstar:].size)
+  #print("After append/concatenate")
+  #print(newdata, newdata.size)
+  #sys.exit(0)
 
   # use Z_V from appendix of 1909.00756; divided by u_0 to make the 1-link currents used match
   vpol = g2.fourier_vacpol(newdata,Z=gv.gvar('0.93516(16)')/gv.gvar('0.820192(14)'),ainv=1/a_vcoarse,periodic=False)
 
-  a_mu = g2.a_mu(vpol,Q=1/3.)
+  a_mu = g2.a_mu(vpol,Q=1./3.)
 
   print('a_mu:',a_mu, "for" , tag_, "t* = ", tstar)
 
   return a_mu 
 
-#
-#
-#
 
-##tag_ = 'charged-up'
-##tstar = 14
+for i in range(9,10):
+  a_charge  = single_fit('charged-up', i) 
+  a_neutral = single_fit('uncharged-up', i) 
 
-a_charge  = single_fit('charged-up', 14) 
-a_neutral = single_fit('uncharged-up', 14) 
+  print("a_mu[QCD+QED] = " , a_charge)
+  print("a_mu[QCD]     = " , a_neutral)
 
-print("a_mu[QCD+QED] = " , a_charge)
-print("a_mu[QCD]     = " , a_neutral)
+  rat = a_charge / a_neutral
 
-rat = a_charge / a_neutral
-
-print("a_mu[QCD+QED]/a_mu[QCD] = " , rat)
+  print("a_mu[QCD+QED]/a_mu[QCD] = " , rat)
 
 
 

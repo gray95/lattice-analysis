@@ -24,37 +24,36 @@ import g2tools as g2
 
 lsqfit.LSQFit.fmt_parameter = '%8.4f +- %8.4f'
 
-DISPLAYPLOTS = False
-#tmin = 8
-#svdcut = 1.0e-4
-#svdcut = 0.003
-
 hbarc = 0.197326968
 
-def main():
-    dfile = '/home/gray/Desktop/lattice-analysis/data/qed/rho_3ml.gpl'
-    tag01 = 'rho_m0.007278'
-    tag02 = 'rho_m0.007278_ucav'
-    tag03 = 'rho_m0.007278'
-    tag04 = 'rho_m0.007278_dcav'
-
-    T = 48
+def main(tstr):
+    dfile = '/home/gray/Desktop/lattice-analysis/data/qed/vcoarse/dan_a/rho_vcphys_bothcharges_up_down.gpl'
+#    tag01 = 'rho_m' + str(mq)
+#    tag02 = 'rho_m' + str(mq) + '_ucav'
+#    tag03 = 'rho_m' + str(mq)
+#    tag04 = 'rho_m' + str(mq) + '_dcav'
+   
     madedata = make_data(dfile,norm=3.) # factor of 3 for colour (missed in extraction)
     data = madedata[0]
+    T = data.size / len(madedata[1]) 		# extent in time dir
+    tag01 = madedata[1][0]
+    tag02 = madedata[1][1]
+    tag03 = madedata[1][2]		#or =tag01 if no isospin breaking
+    tag04 = madedata[1][3]
+    #sys.exit(0)
 
-    ratiodata = {}
-    ratiodata['up'] = data[tag02]/data[tag01]
-    ratiodata['down'] = data[tag04]/data[tag03]
+    #ratiodata = {}
+    #ratiodata['up'] = data[tag02]/data[tag01]
+    #ratiodata['down'] = data[tag04]/data[tag03]
 
-    suggestedsvdcut = madedata[1]
+    suggestedsvdcut = madedata[2]
     
     pfile = "vector_fit.p" # last fit
 
     tmin = 2
     svdcut = 1e-16
 
-
-    fitter = CorrFitter(models=build_models(tag01,tag02,tag03,tag04,tmin,T))
+    fitter = CorrFitter(models=build_models(tag01,tag02,tag03,tag04, tmin, T))
     for nexp in [2,3,4,5]:
         fit = fitter.lsqfit(data=data,prior=build_prior(nexp),p0=pfile,maxit=20000,svdcut=svdcut,add_svdnoise=False)
     print(fit)
@@ -64,81 +63,82 @@ def main():
     tfit = range(tmin,T+1-tmin) # all ts
     tp = T
 
-    tstar = 17
+    tstar = tstr 
 
     tcut = 200
 
     newdata = {}
 
-    newdata[tag01] = data[tag01][:tstar]
-    newdata[tag02] = data[tag02][:tstar]
-    newdata[tag03] = data[tag03][:tstar]
-    newdata[tag04] = data[tag04][:tstar]
+    tags = ['up', 'up_qed', 'down', 'down_qed']
+    newdata[tags[0]] = data[tag01][:tstar]
+    newdata[tags[1]] = data[tag02][:tstar]
+    newdata[tags[2]] = data[tag01][:tstar]
+    newdata[tags[3]] = data[tag04][:tstar]
 
 
     # do replacement of data with fit
 
-    fitdataunchargedup = Corr2(datatag=tag01,tdata=range(48),a=('a1:vec:u','ao:vec:u'),b=('a1:vec:u','ao:vec:u'),dE=('dE:vec:u','dEo:vec:u'),s=(1.,-1.)).fitfcn(fit.p)
-    fitdataunchargeddown = Corr2(datatag=tag03,tdata=range(48),a=('a1:vec:d','ao:vec:d'),b=('a1:vec:d','ao:vec:d'),dE=('dE:vec:d','dEo:vec:d'),s=(1.,-1.)).fitfcn(fit.p)
+    fitdataunchargedup = Corr2(datatag=tags[0],tdata=range(48),a=('a1:vec:u','ao:vec:u'),b=('a1:vec:u','ao:vec:u'),dE=('dE:vec:u','dEo:vec:u'),s=(1.,-1.)).fitfcn(fit.p)
+    fitdataunchargeddown = Corr2(datatag=tags[2],tdata=range(48),a=('a1:vec:d','ao:vec:d'),b=('a1:vec:d','ao:vec:d'),dE=('dE:vec:d','dEo:vec:d'),s=(1.,-1.)).fitfcn(fit.p)
     for index in range(48):
             if index >= tcut:
-                newdata[tag01] = np.append(newdata[tag01],0.)
-                newdata[tag03] = np.append(newdata[tag03],0.)
+                newdata[tags[0]] = np.append(newdata[tags[0]],0.)
+                newdata[tags[2]] = np.append(newdata[tags[2]],0.)
             elif index >= tstar:
-                newdata[tag01] = np.append(newdata[tag01],fitdataunchargedup[index])
-                newdata[tag03] = np.append(newdata[tag03],fitdataunchargeddown[index])
+                newdata[tags[0]] = np.append(newdata[tags[0]],fitdataunchargedup[index])
+                newdata[tags[2]] = np.append(newdata[tags[2]],fitdataunchargeddown[index])
 
-    fitdatachargedup = Corr2(datatag=tag02,tdata=range(48),a=('a1:vec:qed:u','ao:vec:qed:u'),b=('a1:vec:qed:u','ao:vec:qed:u'),dE=('dE:vec:qed:u','dEo:vec:qed:u'),s=(1.,-1.)).fitfcn(fit.p)
-    fitdatachargedown = Corr2(datatag=tag04,tdata=range(48),a=('a1:vec:qed:d','ao:vec:qed:d'),b=('a1:vec:qed:d','ao:vec:qed:d'),dE=('dE:vec:qed:d','dEo:vec:qed:d'),s=(1.,-1.)).fitfcn(fit.p)
+    fitdatachargedup = Corr2(datatag=tags[1],tdata=range(48),a=('a1:vec:qed:u','ao:vec:qed:u'),b=('a1:vec:qed:u','ao:vec:qed:u'),dE=('dE:vec:qed:u','dEo:vec:qed:u'),s=(1.,-1.)).fitfcn(fit.p)
+    fitdatachargedown = Corr2(datatag=tags[3],tdata=range(48),a=('a1:vec:qed:d','ao:vec:qed:d'),b=('a1:vec:qed:d','ao:vec:qed:d'),dE=('dE:vec:qed:d','dEo:vec:qed:d'),s=(1.,-1.)).fitfcn(fit.p)
     for index in range(48):
             if index >= tcut:
-                newdata[tag02] = np.append(newdata[tag02],0.)
-                newdata[tag04] = np.append(newdata[tag04],0.)
+                newdata[tags[1]] = np.append(newdata[tags[1]],0.)
+                newdata[tags[3]] = np.append(newdata[tags[3]],0.)
             elif index >= tstar:
-                newdata[tag02] = np.append(newdata[tag02],fitdatachargedup[index])
-                newdata[tag04] = np.append(newdata[tag04],fitdatachargedown[index])
+                newdata[tags[1]] = np.append(newdata[tags[1]],fitdatachargedup[index])
+                newdata[tags[3]] = np.append(newdata[tags[3]],fitdatachargedown[index])
 
     w0 = gv.gvar('0.1715(9)')
     w0overa = gv.gvar('1.1367(5)')
-    ##ZV = gv.gvar('0.9881(10)')
     ZV = gv.gvar('0.9837(20)')
     ZVqed = gv.gvar('0.999544(14)')*ZV
     hbarc = 0.197326968
     a = (w0/w0overa)/hbarc
 
-    moments = g2.moments(newdata[tag01],Z=ZV,ainv=1/a,periodic=False)
-    vpol = g2.vacpol(moments,order=(2,1))
-    unchargedamuu = g2.a_mu(vpol,2/3.)
+    print('THIS IS THE INFORMATION CENTRE')
+    print(len(newdata[tags[0]]), len(newdata[tags[1]]), len(newdata[tags[2]]), len(newdata[tags[3]]))
+    print('tmin, tstar', tmin, tstar)
 
+    #moments = g2.moments(newdata[tags[0]],Z=ZV,ainv=1/a,periodic=False)
+    #vpol = g2.vacpol(moments,order=(2,1))
+    vpol = g2.fourier_vacpol(newdata[tags[0]], Z=ZV, ainv=1/a, periodic=False)
+    unchargedamuu = g2.a_mu(vpol,2/3.)
     print('up a_mu[QCD]: ',unchargedamuu)
  
-    moments = g2.moments(newdata[tag02],Z=ZVqed,ainv=1/a,periodic=False)
-    vpol = g2.vacpol(moments,order=(2,1))
+    #moments = g2.moments(newdata[tags[1]],Z=ZVqed,ainv=1/a,periodic=False)
+    #vpol = g2.vacpol(moments,order=(2,1))
+    vpol = g2.fourier_vacpol(newdata[tags[1]], Z=ZVqed, ainv=1/a, periodic=False)
     chargedamuu = g2.a_mu(vpol,2/3.)
-
     print('up a_mu[QCD+QED]: ',chargedamuu)
 
-    moments = g2.moments(newdata[tag03],Z=ZV,ainv=1/a,periodic=False)
-    vpol = g2.vacpol(moments,order=(2,1))
+    #moments = g2.moments(newdata[tags[2]],Z=ZV,ainv=1/a,periodic=False)
+    #vpol = g2.vacpol(moments,order=(2,1))
+    vpol = g2.fourier_vacpol(newdata[tags[2]], Z=ZV, ainv=1/a, periodic=False)
     unchargedamud = g2.a_mu(vpol,1/3.)
-
     print('down a_mu[QCD]: ',unchargedamud)
  
-    moments = g2.moments(newdata[tag04],Z=ZVqed,ainv=1/a,periodic=False)
-    vpol = g2.vacpol(moments,order=(2,1))
+    #moments = g2.moments(newdata[tags[3]],Z=ZVqed,ainv=1/a,periodic=False)
+    #vpol = g2.vacpol(moments,order=(2,1))
+    vpol = g2.fourier_vacpol(newdata[tags[3]], Z=ZVqed, ainv=1/a, periodic=False)
     chargedamud = g2.a_mu(vpol,1/3.)
-
     print('down a_mu[QCD+QED]: ',chargedamud)
 
     print('up a_mu[QCD+QED]/a_mu[QCD]: ',chargedamuu/unchargedamuu)
-    #print(chargedamud/unchargedamud)
+    print('down a_mu[QCD+QED]/a_mu[QCD]: ',chargedamud/unchargedamud)
     print('up+down a_mu[QCD]: ',unchargedamud+unchargedamuu)
     print('up+down a_mu[QCD+QED]/a_mu[QCD]: ',(chargedamud+chargedamuu)/(unchargedamud+unchargedamuu))
 
 
-
-    
-##
 
     
 def build_prior(nexp):
@@ -215,14 +215,13 @@ def build_models(tag01,tag02,tag03,tag04,tmin,T):
 def make_data(filename,norm=1):
     dset = gv.dataset.Dataset(filename)
     s = gv.dataset.svd_diagnosis(dset)
-    print(s.svdcut)
+    print(dset.keys())
     for tag in dset.keys():
         dset[tag] = norm*np.array(dset[tag])
-    #print(len(dset['etac:l.l']))
-    #print len(dset['etac_ptpt_smsm_pair00'])
-    return (gv.dataset.avg_data(dset),s.svdcut)
+    return (gv.dataset.avg_data(dset), dset.keys(), s.svdcut)
 
 
 if __name__ == '__main__':
-    main()
+    for i in range(10, 11):
+        main(i)
 
