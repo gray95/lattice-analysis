@@ -10,11 +10,16 @@ seven_ml = 0.01698/mphys
 five_ml =  0.01213/mphys
 three_ml = 0.007278/mphys
 
-# data hard wired
-svn = gv.gvar('0.990(23)')
-fve = gv.gvar('0.988(40)')
-thr = gv.gvar('0.969(73)')
-rphys = gv.gvar('1.017(84)')
+#  	t*=10
+amu_phys = gv.gvar('5.01(36)')
+amu_thr  = gv.gvar('4.96(12)')
+amu_fve  = gv.gvar('4.662(80)')
+amu_svn  = gv.gvar('4.372(61)')
+
+rt_svn = gv.gvar('0.99955(36)')
+rt_fve = gv.gvar('1.00002(66)')
+rt_thr = gv.gvar('1.0023(16)')
+rphys = gv.gvar('1.003(15)')
 
 def extrap(x,p):
     res = []
@@ -25,32 +30,33 @@ def extrap(x,p):
 hbarc = 0.197326968
 
 prior = {}
-prior['a'] = [gv.gvar('12(10)'),gv.gvar(0,100),gv.gvar(0,1),gv.gvar(0,1)]
+prior['a'] = [gv.gvar('500(200)'),gv.gvar(0,50),gv.gvar(0,1),gv.gvar(0,1)]
 
 
 ## extrapolation
-fit = lsq.nonlinear_fit(data=([seven_ml/hbarc,five_ml/hbarc,three_ml/hbarc],[svn,fve,thr]),prior=prior,fcn=extrap)
+fit = lsq.nonlinear_fit(data=([mphys*three_ml/hbarc,mphys*five_ml/hbarc,mphys*seven_ml/hbarc],[amu_thr, amu_fve, amu_svn]),prior=prior,fcn=extrap)
 print("Fit results")
 print(fit)
 
-print("physical value of anomaly ", extrap([mphys], fit.p))
+print("physical value: ", extrap([mphys/hbarc], fit.p))
 
 plt.rc('font', **{'family': 'serif', 'serif': ['Computer Modern'],'size':12})
 plt.rc('text', usetex=True)
 plt.rc('axes', linewidth=0.5)
 #plt.rcParams['savefig.dpi'] = 200
-plt.figure(figsize=((4.5,4.5/1.618)))
+#plt.figure(figsize=((4.5,4.5/1.618)))
 plt.gca().tick_params(right=True,top=True,direction='in')
 
-fitrange = np.arange(0,seven_ml,0.0001)
+
+fitrange = np.arange(0,(seven_ml*mphys)**2,0.0001)
 fitline = extrap([p/hbarc for p in fitrange],fit.p)
 
-plt.errorbar(seven_ml,svn.mean,xerr=0,yerr=svn.sdev,fmt='h',mfc='none',color='r',label='Fermilab/HPQCD/MILC',lw=1)
-plt.errorbar(five_ml,fve.mean,xerr=0,yerr=fve.sdev,fmt='h',mfc='none',color='r',lw=1)
-plt.errorbar(three_ml,thr.mean,xerr=0,yerr=thr.sdev,fmt='h',mfc='none',color='r',lw=1)
+plt.errorbar((mphys*seven_ml)**2,amu_svn.mean,xerr=0,yerr=amu_svn.sdev,fmt='h',mfc='none',color='r',lw=1)
+plt.errorbar((mphys*five_ml)**2,amu_fve.mean,xerr=0,yerr=amu_fve.sdev,fmt='h',mfc='none',color='r',lw=1)
+plt.errorbar((mphys*three_ml)**2,amu_thr.mean,xerr=0,yerr=amu_thr.sdev,fmt='h',mfc='none',color='r',lw=1)
 
 # physical point
-plt.errorbar(mphys/mphys,rphys.mean,xerr=0,yerr=rphys.sdev,fmt='h',mfc='none', label='physical point', color='b', lw=1)
+plt.errorbar(mphys**2,amu_phys.mean,xerr=0,yerr=amu_phys.sdev,fmt='h',mfc='none', label='physical point', color='b', lw=1)
 
 plt.plot([p**2 for p in fitrange],[p.mean for p in fitline],'--',color='r')
 plt.fill_between([p**2 for p in fitrange],[p.mean-p.sdev for p in fitline],[p.mean+p.sdev for p in fitline],alpha=0.5,lw=0,color='r')
@@ -59,14 +65,14 @@ handles,labels = plt.gca().get_legend_handles_labels()
 handles = [h[0] for h in handles]
 plt.legend(handles=handles,labels=labels,frameon=False,fontsize=8,loc='lower left')
 
-plt.xlabel('$(m_q/m_l)$')
-plt.ylabel(r'$\frac{a_{\mu}^{\mbox{QCD+QED}}}{a_{\mu}^{\mbox{QCD}}}$')
+plt.xlabel('$m_q^2$')
+plt.ylabel(r'$a_{\mu}^{\mbox{QCD+QED}}$', rotation=0, labelpad=30)
 
-plt.ylim(bottom=.8)
-plt.xlim(left=0, right=10)
+#plt.ylim(bottom=.98)
+#plt.xlim(left=0, right=10)
 
 plt.tight_layout()
-plt.savefig('amu_ratio_chiExt.png', dpi=600)
+#plt.savefig('amu_ratio_chiExt.png', dpi=600)
 plt.show()
 
 plt.close()

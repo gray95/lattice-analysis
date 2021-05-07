@@ -5,8 +5,8 @@ glesga
 log
 code/*.pyc
 filenames.txt
-misc-code/
-g2tools/
+misc-code
+g2tools
 code/__pycache__
 *.png
 *.out

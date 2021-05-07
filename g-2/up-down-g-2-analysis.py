@@ -5,6 +5,7 @@
 Created by Peter Lepage on 2010-11-26.
 Copyright (c) 2010/2011 Cornell University. All rights reserved.
 Edited by Dan Hatton December 2016
+Edited by Gaurav Ray March 2021
 """
 
 
@@ -27,7 +28,7 @@ lsqfit.LSQFit.fmt_parameter = '%8.4f +- %8.4f'
 hbarc = 0.197326968
 
 def main(tstr):
-    dfile = '/home/gray/Desktop/lattice-analysis/data/qed/vcoarse/dan_a/rho_vcphys_bothcharges_up_down.gpl'
+    dfile = '/home/gray/Desktop/lattice-analysis/data/qed/vcoarse/comb/rho_dana_selfb_physud.gpl'
 #    tag01 = 'rho_m' + str(mq)
 #    tag02 = 'rho_m' + str(mq) + '_ucav'
 #    tag03 = 'rho_m' + str(mq)
@@ -38,7 +39,7 @@ def main(tstr):
     T = data.size / len(madedata[1]) 		# extent in time dir
     tag01 = madedata[1][0]
     tag02 = madedata[1][1]
-    tag03 = madedata[1][2]		#or =tag01 if no isospin breaking
+    tag03 = madedata[1][2]		# =tag01 if no isospin breaking
     tag04 = madedata[1][3]
     #sys.exit(0)
 
@@ -51,11 +52,11 @@ def main(tstr):
     pfile = "vector_fit.p" # last fit
 
     tmin = 2
-    svdcut = 1e-16
+    svdcut = 1e-10 #suggestedsvdcut
 
     fitter = CorrFitter(models=build_models(tag01,tag02,tag03,tag04, tmin, T))
     for nexp in [2,3,4,5]:
-        fit = fitter.lsqfit(data=data,prior=build_prior(nexp),p0=pfile,maxit=20000,svdcut=svdcut,add_svdnoise=False)
+        fit = fitter.lsqfit(data=data,prior=build_prior(nexp),p0=None,maxit=20000,svdcut=svdcut,add_svdnoise=False)
     print(fit)
 
 
@@ -70,31 +71,31 @@ def main(tstr):
     newdata = {}
 
     tags = ['up', 'up_qed', 'down', 'down_qed']
-    newdata[tags[0]] = data[tag01][:tstar]
-    newdata[tags[1]] = data[tag02][:tstar]
-    newdata[tags[2]] = data[tag01][:tstar]
-    newdata[tags[3]] = data[tag04][:tstar]
+    newdata[tags[0]] = data[tag01][:tstar+1]
+    newdata[tags[1]] = data[tag02][:tstar+1]
+    newdata[tags[2]] = data[tag03][:tstar+1]
+    newdata[tags[3]] = data[tag04][:tstar+1]
 
 
     # do replacement of data with fit
 
-    fitdataunchargedup = Corr2(datatag=tags[0],tdata=range(48),a=('a1:vec:u','ao:vec:u'),b=('a1:vec:u','ao:vec:u'),dE=('dE:vec:u','dEo:vec:u'),s=(1.,-1.)).fitfcn(fit.p)
-    fitdataunchargeddown = Corr2(datatag=tags[2],tdata=range(48),a=('a1:vec:d','ao:vec:d'),b=('a1:vec:d','ao:vec:d'),dE=('dE:vec:d','dEo:vec:d'),s=(1.,-1.)).fitfcn(fit.p)
+    fitdataunchargedup = Corr2(datatag=tags[0],tdata=range(T),a=('a1:vec:u','ao:vec:u'),b=('a1:vec:u','ao:vec:u'),dE=('dE:vec:u','dEo:vec:u'),s=(1.,-1.)).fitfcn(fit.p)
+    fitdataunchargeddown = Corr2(datatag=tags[2],tdata=range(T),a=('a1:vec:d','ao:vec:d'),b=('a1:vec:d','ao:vec:d'),dE=('dE:vec:d','dEo:vec:d'),s=(1.,-1.)).fitfcn(fit.p)
     for index in range(48):
             if index >= tcut:
                 newdata[tags[0]] = np.append(newdata[tags[0]],0.)
                 newdata[tags[2]] = np.append(newdata[tags[2]],0.)
-            elif index >= tstar:
+            elif index > tstar:
                 newdata[tags[0]] = np.append(newdata[tags[0]],fitdataunchargedup[index])
                 newdata[tags[2]] = np.append(newdata[tags[2]],fitdataunchargeddown[index])
 
-    fitdatachargedup = Corr2(datatag=tags[1],tdata=range(48),a=('a1:vec:qed:u','ao:vec:qed:u'),b=('a1:vec:qed:u','ao:vec:qed:u'),dE=('dE:vec:qed:u','dEo:vec:qed:u'),s=(1.,-1.)).fitfcn(fit.p)
-    fitdatachargedown = Corr2(datatag=tags[3],tdata=range(48),a=('a1:vec:qed:d','ao:vec:qed:d'),b=('a1:vec:qed:d','ao:vec:qed:d'),dE=('dE:vec:qed:d','dEo:vec:qed:d'),s=(1.,-1.)).fitfcn(fit.p)
+    fitdatachargedup = Corr2(datatag=tags[1],tdata=range(T),a=('a1:vec:qed:u','ao:vec:qed:u'),b=('a1:vec:qed:u','ao:vec:qed:u'),dE=('dE:vec:qed:u','dEo:vec:qed:u'),s=(1.,-1.)).fitfcn(fit.p)
+    fitdatachargedown = Corr2(datatag=tags[3],tdata=range(T),a=('a1:vec:qed:d','ao:vec:qed:d'),b=('a1:vec:qed:d','ao:vec:qed:d'),dE=('dE:vec:qed:d','dEo:vec:qed:d'),s=(1.,-1.)).fitfcn(fit.p)
     for index in range(48):
             if index >= tcut:
                 newdata[tags[1]] = np.append(newdata[tags[1]],0.)
                 newdata[tags[3]] = np.append(newdata[tags[3]],0.)
-            elif index >= tstar:
+            elif index > tstar:
                 newdata[tags[1]] = np.append(newdata[tags[1]],fitdatachargedup[index])
                 newdata[tags[3]] = np.append(newdata[tags[3]],fitdatachargedown[index])
 
@@ -112,7 +113,7 @@ def main(tstr):
     #moments = g2.moments(newdata[tags[0]],Z=ZV,ainv=1/a,periodic=False)
     #vpol = g2.vacpol(moments,order=(2,1))
     vpol = g2.fourier_vacpol(newdata[tags[0]], Z=ZV, ainv=1/a, periodic=False)
-    unchargedamuu = g2.a_mu(vpol,2/3.)
+    unchargedamuu = g2.a_mu(vpol, 2/3.)
     print('up a_mu[QCD]: ',unchargedamuu)
  
     #moments = g2.moments(newdata[tags[1]],Z=ZVqed,ainv=1/a,periodic=False)
@@ -136,8 +137,8 @@ def main(tstr):
     print('up a_mu[QCD+QED]/a_mu[QCD]: ',chargedamuu/unchargedamuu)
     print('down a_mu[QCD+QED]/a_mu[QCD]: ',chargedamud/unchargedamud)
     print('up+down a_mu[QCD]: ',unchargedamud+unchargedamuu)
+    print('up+down a_mu[QCD+QED]: ',chargedamuu+chargedamud)
     print('up+down a_mu[QCD+QED]/a_mu[QCD]: ',(chargedamud+chargedamuu)/(unchargedamud+unchargedamuu))
-
 
 
     
@@ -152,7 +153,7 @@ def build_prior(nexp):
     prior.add('log(dE:vec:u)',[log(gv.gvar(2,2)) for i in range(nexp)])
     prior['log(dE:vec:u)'][0] = log(gv.gvar(1,1))
     prior.add('log(dEo:vec:u)',[log(gv.gvar(1,1)) for i in range(nexp)])
-    prior['log(dEo:vec:u)'][0] = log(gv.gvar(1,15))
+    prior['log(dEo:vec:u)'][0] = log(gv.gvar(1,1))
     #prior['logdE:etac'][0] = log(gv.gvar(0.1,0.05))
 
     prior.add('log(a1:vec:qed:u)',[log(gv.gvar(1,1)) for i in range(nexp)])
@@ -160,7 +161,7 @@ def build_prior(nexp):
     prior.add('log(ao:vec:qed:u)',[log(gv.gvar(1,1)) for i in range(nexp)])
     prior['log(ao:vec:qed:u)'][0] = log(gv.gvar(0.5,1))
     #prior.add('as1:etac',[gv.gvar(0.001,0.01) for i in range(nexp)])
-    prior.add('log(dE:vec:qed:u)',[log(gv.gvar(1,1)) for i in range(nexp)])
+    prior.add('log(dE:vec:qed:u)',[log(gv.gvar(2,2)) for i in range(nexp)])
     prior['log(dE:vec:qed:u)'][0] = log(gv.gvar(1,1))
     prior.add('log(dEo:vec:qed:u)',[log(gv.gvar(1,1)) for i in range(nexp)])
     prior['log(dEo:vec:qed:u)'][0] = log(gv.gvar(1,1))
@@ -173,7 +174,7 @@ def build_prior(nexp):
     prior.add('log(dE:vec:d)',[log(gv.gvar(2,2)) for i in range(nexp)])
     prior['log(dE:vec:d)'][0] = log(gv.gvar(1,1))
     prior.add('log(dEo:vec:d)',[log(gv.gvar(1,1)) for i in range(nexp)])
-    prior['log(dEo:vec:d)'][0] = log(gv.gvar(1,15))
+    prior['log(dEo:vec:d)'][0] = log(gv.gvar(1,1))
     #prior['logdE:etac'][0] = log(gv.gvar(0.1,0.05))
 
     prior.add('log(a1:vec:qed:d)',[log(gv.gvar(1,1)) for i in range(nexp)])
@@ -181,7 +182,7 @@ def build_prior(nexp):
     prior.add('log(ao:vec:qed:d)',[log(gv.gvar(1,1)) for i in range(nexp)])
     prior['log(ao:vec:qed:d)'][0] = log(gv.gvar(0.5,1))
     #prior.add('as1:etac',[gv.gvar(0.001,0.01) for i in range(nexp)])
-    prior.add('log(dE:vec:qed:d)',[log(gv.gvar(1,1)) for i in range(nexp)])
+    prior.add('log(dE:vec:qed:d)',[log(gv.gvar(2,2)) for i in range(nexp)])
     prior['log(dE:vec:qed:d)'][0] = log(gv.gvar(1,1))
     prior.add('log(dEo:vec:qed:d)',[log(gv.gvar(1,1)) for i in range(nexp)])
     prior['log(dEo:vec:qed:d)'][0] = log(gv.gvar(1,1))
@@ -224,4 +225,3 @@ def make_data(filename,norm=1):
 if __name__ == '__main__':
     for i in range(10, 11):
         main(i)
-

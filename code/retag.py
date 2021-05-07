@@ -4,21 +4,29 @@
 import os
 import sys
 import re
+import gvar as gv
 
-base = '../data/qed/vcoarse/dan_b'
 
-name = 'm0.001524_rhox_0.202cav_outcorr.gpl'
-nname = name[25:]
+base = '../data/qed/vcoarse/dan_a'
+
+name = 'rho_vcphys_bothcharges_up_down.gpl'
+#nname = name[25:]
 filepath = os.path.join(base, name)
 
 f = open(filepath, 'r')
 f1 = f.readlines()
 g = open(base + '/retag_'+ name, 'w+')
 
+retag = ['rho_m0.001524', 'rho_m0.001524_ucav', 'rho_m0.003328', 'rho_m0.003328_dcav']
 
-for x in f1:  
-   x = re.sub('0.001524_GXGX', 'rho_m0.001524_cav', x)
-   g.write(x)
+tag = gv.dataset.Dataset(filepath).keys()
+print(tag, ' getting replaced with: ', retag)
+
+for i in range(4):
+  for x in f1:  
+     y = re.sub(r'\b'+tag[i], retag[i], x)
+     if y!=x:
+       g.write(y)
     
 
 

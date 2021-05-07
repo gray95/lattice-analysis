@@ -12,7 +12,7 @@ import sys
 
 # keep data files in one place
 data_dir="../data/qed/vcoarse/dan_a"
-pfile = "last_fit_tmp.bin" # last fit
+pfile = None #"last_fit_tmp.bin" # last fit
 
 
 def build_prior(nexp,dErho=gv.gvar('0.476(100)')):
@@ -53,24 +53,27 @@ def build_models(tmin,length,tag):
     return models
 
 
-
-
-periodic = False
-
 print()
 print('***** very coarse *****')
 
-w0 = gv.gvar('0.1715(9)')
-a_vcoarse = (w0/gv.gvar('1.13215(35)'))/0.197326968
-
 # load very coarse correlator
-dset = (gv.dataset.Dataset(data_dir + '/rho_vcphys_bothcharges_m0.001524.gpl'))
+dset = (gv.dataset.Dataset(data_dir + '/rho_vcphys_bothcharges_m0.003328.gpl'))
 
 dsetavg = gv.dataset.avg_data(dset)
 
 
-def single_fit(tag_, tstar) :
+def single_fit(tag_, tstar, CHARGED=False) :
 
+  w0 = gv.gvar('0.1715(9)')
+  w0overa = gv.gvar('1.1367(5)')
+  ZV = gv.gvar('0.9837(20)')
+  ZVqed = gv.gvar('0.999544(14)')*ZV
+  hbarc = 0.197326968
+  a_vcoarse = (w0/w0overa)/hbarc
+
+  if CHARGED==True:
+    ZV = ZVqed
+  else: ZV = ZV
   dataf = dsetavg[tag_]
   tmin = 2
 
@@ -97,7 +100,7 @@ def single_fit(tag_, tstar) :
   #sys.exit(0)
 
   # use Z_V from appendix of 1909.00756; divided by u_0 to make the 1-link currents used match
-  vpol = g2.fourier_vacpol(newdata,Z=gv.gvar('0.93516(16)')/gv.gvar('0.820192(14)'),ainv=1/a_vcoarse,periodic=False)
+  vpol = g2.fourier_vacpol(newdata,Z=ZV,ainv=1/a_vcoarse,periodic=False)
 
   a_mu = g2.a_mu(vpol,Q=1./3.)
 
@@ -107,8 +110,8 @@ def single_fit(tag_, tstar) :
 
 
 for i in range(9,10):
-  a_charge  = single_fit('charged-up', i) 
-  a_neutral = single_fit('uncharged-up', i) 
+  a_charge  = single_fit('charged-down', i, CHARGED=True) 
+  a_neutral = single_fit('uncharged-down', i, CHARGED=False) 
 
   print("a_mu[QCD+QED] = " , a_charge)
   print("a_mu[QCD]     = " , a_neutral)

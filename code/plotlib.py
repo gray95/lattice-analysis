@@ -52,16 +52,16 @@ def calc_meff(corr, nt, no_config):
 
           jnow = jnow / (no_config - 1) 
           jinc = jinc / (no_config - 1) 
-          if jnow > 0 and jinc > 0 :
-             tmp[i] = m.log(jnow / jinc)
+          if True: #jnow > 0 and jinc > 0 :
+             tmp[i] = m.log(abs(jnow) / abs(jinc))
           else:
              ok = False
 
        now = now / no_config
        inc = inc / no_config
 
-       if (now > 0 and inc > 0) and ok   :
-          meff = m.log(now/inc)
+       if True: #(now > 0 and inc > 0) and ok :
+          meff = m.log(abs(now)/abs(inc))
           jerr = jackknife(tmp,no_config)
        else:
           meff = 0.0
@@ -73,12 +73,14 @@ def calc_meff(corr, nt, no_config):
     return tt, mm, mm_err
 
     
-def plot_corr(c, KEY, SAVEFIG):   
-    print ("Reading data from  " , c)
+def plot_corr(c, KEY, SAVEFIG=False):   
+    print ("Reading data from %s with key %s" % (c, KEY))
 
     corr = gv.dataset.Dataset(c)
     corr = corr.toarray()
+    print(len(corr))
     corr = corr[KEY]
+    print(corr.shape)
     #corr = corr * -1
 
     corr_mean = np.mean(corr, axis=0)
@@ -113,7 +115,7 @@ def plot_corr(c, KEY, SAVEFIG):
     plt.xlabel('t')
     plt.ylabel('meff')
     plt.xlim(0,nt//4)
-    plt.ylim(0,4)
+    plt.ylim(0,6)
     plt.yticks(np.arange(0, 4, 0.5))
     plt.xticks(np.arange(0, nt//4, 1))
     plt.grid(axis='y')

@@ -8,14 +8,14 @@ import sys
 import gvar as gv
 
 from parameters import OSC, CORRFIT, PLOT, SAVEFIG
-from parameters import filename_in, key, otherkey
+from parameters import filepath, key, otherkey
 
 
 if CORRFIT :
-    fit_data(filename_in, key, otherkey)        # not an eigenfit!!
+    fit_data(filepath, key, otherkey)        # just a single channel fit
 
 if PLOT :
-    plot_corr(filename_in, key, SAVEFIG)
+    plot_corr(filepath, key, SAVEFIG)
 
     
 
