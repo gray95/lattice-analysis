@@ -10,7 +10,7 @@ import datetime
 from parameters import corr, corrpath, l
 from parameters import T, s_coeff
 from parameters import OSC, NOISE, WRITE_LOG
-from parameters import KEYFMT, tag, ttag, otag
+from parameters import SRCs, KEYFMT, tag, ttag, otag
 
 # -----------------------------------------------------------------------------------
 SHOWPLOTS = False         # display plots at end of fits
@@ -18,18 +18,20 @@ SHOWPLOTS = False         # display plots at end of fits
 
 print('Temporal extent: ', T)
 
-SRCs = ['l', 'g']            # labels for the sources     
 TDATA = range(T)
 SVDCUT = 0.0005
 NEXP = range(1,13)            # number of exponentials in fit
 tp=T
-tmin = 3               # start fit from here for diagonal elements (ll, gg,..)
-tmax = tmin+8 
-offtmin = tmin					# off-diagonal elements (lg, gl,..)
-offtmax = offtmin+8            
-t0 = 2                      # initial timeslice to generate priors
 
-c_hack = -1									# sometimes -1 needed to generate priors
+TFIT = TDATA[1:(T//4 -1)]
+#tmin = 1               # start fit from here for diagonal elements (ll, gg,..)
+#tmax = tmin+6 
+#offtmin = tmin					# off-diagonal elements (lg, gl,..)
+#offtmax = offtmin+6            
+
+t0 = 4                      # initial timeslice to generate priors
+
+c_hack = 1									# sometimes -1 needed to generate priors
 
 
 def main():
@@ -40,7 +42,7 @@ def main():
         print(30 * '=', 'nterm =', N)
         prior = make_prior(N, basis)
         fit = fitter.lsqfit(data=data, prior=prior, p0=p0, svdcut=SVDCUT)
-        print(fit.format(pstyle=None if N < 12 else 'm'))
+        #print(fit.format(pstyle=None if N < 12 else 'm'))
         p0 = fit.pmean
     print_results(fit, basis, prior, data, l)
     if SHOWPLOTS:
@@ -62,18 +64,18 @@ def main():
 def make_data(filename):
     dset = gv.dataset.Dataset(filename)
     data = c_hack*gv.dataset.avg_data(cf.read_dataset(filename, grep=ttag))        
+    #data = gv.regulate(data, svdcut=0.5)
     if OSC:
       basis = cf.EigenBasis(data, keyfmt=KEYFMT, srcs=SRCs, t=(t0, t0+2), tdata=TDATA)
     else:
       basis = cf.EigenBasis(data, keyfmt=KEYFMT, srcs=SRCs, t=(t0, t0+1), tdata=TDATA)
-    #T = data[dset.keys()[0]].size
     return data, basis
 
 def make_models():
     models = []
     for i, s1 in enumerate(SRCs):
         for s2 in SRCs[i:]:
-            tfit=TDATA[tmin:tmax] if s1 == s2 else TDATA[offtmin:offtmax]
+            tfit=TFIT if s1 == s2 else TFIT[:(T//4 -1)]
             otherdata = None if s1 == s2 else KEYFMT.format(s1=s2, s2=s1)
             if OSC:
                 models.append(cf.Corr2(datatag=KEYFMT.format(s1=s1, s2=s2),tdata=TDATA, tfit=tfit, tp=tp, a=(tag+s1,otag+s1), b=(tag+s2,otag+s2), dE=(tag+'dE',otag+'dE'), otherdata=otherdata, s=s_coeff))
@@ -85,9 +87,9 @@ def make_prior(N, basis):
     prior = basis.make_prior(nterm=N, keyfmt=tag+'{s1}')#, eig_srcs=True) 
     if OSC: 
         prior1 = collections.OrderedDict()
-        prior1['onemp_o.l'] = gv.gvar(['1(0.9)'] + (N-1) * ['0.5(5)'])  
-        prior1['onemp_o.g'] = gv.gvar(['1(0.9)'] + (N-1) * ['0.5(5)'])   
-        prior1['log(onemp_o.dE)'] = gv.log(gv.gvar(['1.6(2)'] + (N-1)*['0.5(4)']))
+        for i in SRCs:
+          prior1[otag+i] = gv.gvar(['1(0.9)'] + (N-1) * ['0.5(5)'])   
+        prior1['log('+otag+'dE)'] = gv.log(gv.gvar(['1.7(4)'] + (N-1)*['0.5(4)']))
         prior.update(prior1)    
     return prior
             

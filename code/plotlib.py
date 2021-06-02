@@ -30,7 +30,9 @@ def calc_meff(corr, nt, no_config):
     tmax = int(nt / 2)  - 1
     tt     = np.zeros(( tmax ))
     mm     = np.zeros(( tmax ))
+    sm_mm  = np.zeros(( tmax ))
     mm_err = np.zeros(( tmax ))
+    sm_mm_err=np.zeros(( tmax ))
   
     for t in range(0,tmax):
        tt[t] = t
@@ -70,7 +72,11 @@ def calc_meff(corr, nt, no_config):
        mm[t]     = meff
        mm_err[t] = jerr
 
-    return tt, mm, mm_err
+    for t in range(1, tmax-1):
+       sm_mm[t] = 0.25*(mm[t+1]+2*mm[t]+mm[t-1])
+    sm_mm[0] = mm[0]
+
+    return tt, mm, mm_err, sm_mm
 
     
 def plot_corr(c, KEY, SAVEFIG=False):   
@@ -81,7 +87,7 @@ def plot_corr(c, KEY, SAVEFIG=False):
     print(len(corr))
     corr = corr[KEY]
     print(corr.shape)
-    #corr = corr * -1
+    corr = corr * -1
 
     corr_mean = np.mean(corr, axis=0)
     corr_uncertainty = np.std(corr, axis=0)
@@ -89,35 +95,32 @@ def plot_corr(c, KEY, SAVEFIG=False):
     no_config = corr.shape[0]
     nt        = corr.shape[1]
     
-    tt, meff, meff_err = calc_meff(corr, nt, no_config) 
+    tt, meff, meff_err, smooth_meff = calc_meff(corr, nt, no_config) 
     
     ### plot the data
     
-    plt.subplot(211)
-    plt.errorbar(range(len(corr_mean)),[abs(corr_mean[q]) for q in range(len(corr_mean))], fmt='bo', yerr=None  , alpha=0.5, markersize=2)
-    plt.yscale('log', nonposy='clip')
-    plt.title(r'hyb-hyb $1^{--}$ mean correlator')  
-    plt.ylabel(r'$\langle 0|e^{-HT}|0 \rangle$')
-    
-    E = []
-    for i in range(len(corr_mean)-1):
-        hldr = m.log(abs((corr_mean[i]/corr_mean[i+1])))
-        E.append(hldr)
+    #plt.subplot(211)
+    #plt.errorbar(range(len(corr_mean)),[abs(corr_mean[q]) for q in range(len(corr_mean))], fmt='bo', yerr=None  , alpha=0.5, markersize=2)
+    #plt.yscale('log', nonposy='clip')
+    #plt.title(r'hyb-hyb $1^{--}$ mean correlator')  
+    #plt.ylabel(r'$\langle 0|e^{-HT}|0 \rangle$')
         
-    #plt.subplot(312)
-    #plt.plot(range(len(E)), [E[x] for x in range(len(E))], 'b+')
-    #plt.ylabel(r'$\log( \frac{G(t)}{G(t+a)})$')
-    #plt.xlabel('time')
-    #plt.axis([0,nt,-6,6])
+    plt.subplot(211)
+    plt.ylabel(r'$\frac{G(t)}{2G(t+2)})$')
+    E = [0.5*m.log(abs((corr_mean[i]/corr_mean[i+2]))) for i in range(nt/2-1)]
+    plt.plot(tt, E, 'ro')
+    plt.xlabel('time')
     
+ 
     plt.subplot(212)
     plt.errorbar(tt, meff , meff_err  ,  fmt= 'ro', markersize=2, alpha=0.5)
+    plt.errorbar(tt, smooth_meff, fmt= 'bx', markersize=6, alpha=0.5)
     plt.xlabel('t')
     plt.ylabel('meff')
-    plt.xlim(0,nt//4)
-    plt.ylim(0,6)
-    plt.yticks(np.arange(0, 4, 0.5))
-    plt.xticks(np.arange(0, nt//4, 1))
+    plt.xlim(0,nt//8)
+    plt.ylim(0,5)
+    plt.yticks(np.arange(0, 3, 0.5))
+    plt.xticks(np.arange(0, nt//8, 1))
     plt.grid(axis='y')
     
     if SAVEFIG :

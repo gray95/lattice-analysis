@@ -8,7 +8,7 @@ import corrfitter as cf
 import sys
 
 from parameters import TFIT, TDATA, NEXP, TP
-from parameters import OSC, s_coeff, ainv
+from parameters import OSC, s_coeff, ainv_vc, ainv_c, ainv_fine
 
 def fit_data(filename_in, key, otherkey):
     dset = cf.read_dataset(filename_in) # read data 
@@ -28,7 +28,6 @@ def fit_data(filename_in, key, otherkey):
         prior = make_prior(N) 
         fit = fitter.lsqfit(data=data, prior=prior, p0=p0) # add_svdnoise=True, add_priornoise=True, svdcut=s.svdcut
         p0 = fit.pmean
-        #print_results(fit)
         print(fit.format(pstyle=None if N < 10 else 'm'))
     print_results(fit)
 
@@ -47,13 +46,13 @@ def make_models(key, otherkey):
 def make_prior(N):
     """ Create prior for N-state fit. """
     prior = collections.OrderedDict()    
-    prior['a'] = gv.gvar(['1.00(0.99)'] + (N-1)*['0.01(0.99)'])
-    prior['log(dE)'] = gv.log(gv.gvar(['3(1)'] + (N-1)*['0.3(2)']))
+    prior['log(a)'] = gv.log(gv.gvar(['1.00(0.99)'] + (N-1)*['0.01(0.99)']))
+    prior['log(dE)'] = gv.log(gv.gvar(['1.5(5)'] + (N-1)*['0.3(2)']))
     
     #----------OSC PARAMS-------------#
     if OSC:
-      prior['ao'] = gv.gvar(['1.00(0.99)'] + (N-1)*['0.01(0.99)'])    
-      prior['log(dEo)'] = gv.log(gv.gvar(['3(1)'] + (N-1)*['0.3(2)']))
+      prior['log(ao)'] = gv.log(gv.gvar(['1.00(0.99)'] + (N-1)*['0.01(0.99)']))    
+      prior['log(dEo)'] = gv.log(gv.gvar(['1.5(5)'] + (N-1)*['0.3(2)']))
     return prior
 
 def print_results(fit):
@@ -68,12 +67,12 @@ def print_results(fit):
     print('\n\n\tE (GeV)\t\t\ta')
     print('---------------------------------------------------------')
     for j in range(E.shape[0]):
-        print(" %d:    %s \t\t%s" % (j, ainv*E[j], a[j])) 
+        print(" %d:    %s \t\t%s" % (j, ainv_fine*E[j], a[j])) 
         
     if OSC:    
         print('\n\n\tEo (GeV)\t\t\tao')
         print('---------------------------------------------------------')
         for j in range(Eo.shape[0]):
-            print(" %d:    %s \t\t%s" % (j, ainv*Eo[j], ao[j])) 
+            print(" %d:    %s \t\t%s" % (j, ainv_fine*Eo[j], ao[j])) 
        
     print('\n=====================================================================================\n')

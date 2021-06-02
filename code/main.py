@@ -8,14 +8,14 @@ import sys
 import gvar as gv
 
 from parameters import OSC, CORRFIT, PLOT, SAVEFIG
-from parameters import filepath, key, otherkey
+from parameters import corrpath, key, otherkey
 
 
 if CORRFIT :
-    fit_data(filepath, key, otherkey)        # just a single channel fit
+    fit_data(corrpath, key, otherkey)        # just a single channel fit
 
 if PLOT :
-    plot_corr(filepath, key, SAVEFIG)
+    plot_corr(corrpath, key, SAVEFIG)
 
     
 

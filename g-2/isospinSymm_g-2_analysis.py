@@ -25,10 +25,23 @@ import g2tools as g2
 
 lsqfit.LSQFit.fmt_parameter = '%8.4f +- %8.4f'
 
+w0 = gv.gvar('0.1715(9)')
+
+w0overa = gv.gvar('1.1367(5)')	# very coarse ensemble
+ZV = gv.gvar('0.9837(20)') # vc
+
+#w0overa = gv.gvar('1.4149(6)')	# coarse ensemble
+#ZV = gv.gvar('0.99220(40)') # coarse - at strange mass
+
+ZVqed = gv.gvar('0.999544(14)')*ZV # vc/c? - where are these listed
+
 hbarc = 0.197326968
+a = (w0/w0overa)/hbarc		# in units of (GeV)^-1
+
+print("lattice spacing: ", (w0/w0overa))
 
 def main(tstr):
-    dfile = '/home/gray/Desktop/lattice-analysis/data/qed/vcoarse/self_b/rho_7ml.gpl'
+    dfile = '/home/gray/Desktop/lattice-analysis/data/qed/vcoarse/self_b/rho_vcoarse_7ml.gpl'
    
     madedata = make_data(dfile,norm=3.) # factor of 3 for colour (missed in extraction)
     data = madedata[0]
@@ -36,8 +49,8 @@ def main(tstr):
     tag01 = madedata[1][0]
     tag02 = madedata[1][1]
     tag03 = madedata[1][2]		# =tag01 if no isospin breaking
-    #sys.exit(0)
-
+    print("time extent is: ", T)
+    print(dfile)
     suggestedsvdcut = madedata[2]
     
     pfile = None #"vector_fit.p" # last fit
@@ -70,7 +83,7 @@ def main(tstr):
     # do replacement of data with fit
 
     fitdatauncharged = Corr2(datatag=tags[0],tdata=range(T),a=('a1:vec:u','ao:vec:u'),b=('a1:vec:u','ao:vec:u'),dE=('dE:vec:u','dEo:vec:u'),s=(1.,-1.)).fitfcn(fit.p)
-    for index in range(48):
+    for index in range(T):
             if index >= tcut:
                 newdata[tags[0]] = np.append(newdata[tags[0]],0.)
             elif index > tstar:
@@ -78,7 +91,7 @@ def main(tstr):
 
     fitdatachargedup = Corr2(datatag=tags[1],tdata=range(T),a=('a1:vec:qed:u','ao:vec:qed:u'),b=('a1:vec:qed:u','ao:vec:qed:u'),dE=('dE:vec:qed:u','dEo:vec:qed:u'),s=(1.,-1.)).fitfcn(fit.p)
     fitdatachargedown = Corr2(datatag=tags[2],tdata=range(T),a=('a1:vec:qed:d','ao:vec:qed:d'),b=('a1:vec:qed:d','ao:vec:qed:d'),dE=('dE:vec:qed:d','dEo:vec:qed:d'),s=(1.,-1.)).fitfcn(fit.p)
-    for index in range(48):
+    for index in range(T):
             if index >= tcut:
                 newdata[tags[1]] = np.append(newdata[tags[1]],0.)
                 newdata[tags[2]] = np.append(newdata[tags[2]],0.)
@@ -86,40 +99,34 @@ def main(tstr):
                 newdata[tags[1]] = np.append(newdata[tags[1]],fitdatachargedup[index])
                 newdata[tags[2]] = np.append(newdata[tags[2]],fitdatachargedown[index])
 
-    w0 = gv.gvar('0.1715(9)')
-    w0overa = gv.gvar('1.1367(5)')
-    ZV = gv.gvar('0.9837(20)')
-    ZVqed = gv.gvar('0.999544(14)')*ZV
-    hbarc = 0.197326968
-    a = (w0/w0overa)/hbarc
-
     print('THIS IS THE INFORMATION CENTRE')
     print(len(newdata[tags[0]]), len(newdata[tags[1]]), len(newdata[tags[2]]))
     print('tmin, tstar', tmin, tstar)
 
     vpol = g2.fourier_vacpol(newdata[tags[0]], Z=ZV, ainv=1/a, periodic=False)
     unchargedamuu = g2.a_mu(vpol,2/3.)
-    print('up a_mu[QCD]: ',unchargedamuu)
  
     vpol = g2.fourier_vacpol(newdata[tags[1]], Z=ZVqed, ainv=1/a, periodic=False)
     chargedamuu = g2.a_mu(vpol,2/3.)
-    print('up a_mu[QCD+QED]: ',chargedamuu)
 
     vpol = g2.fourier_vacpol(newdata[tags[0]], Z=ZV, ainv=1/a, periodic=False)
     unchargedamud = g2.a_mu(vpol,1/3.)
-    print('down a_mu[QCD]: ',unchargedamud)
  
     vpol = g2.fourier_vacpol(newdata[tags[2]], Z=ZVqed, ainv=1/a, periodic=False)
     chargedamud = g2.a_mu(vpol,1/3.)
-    print('down a_mu[QCD+QED]: ',chargedamud)
 
-    print('up a_mu[QCD+QED]/a_mu[QCD]: ',chargedamuu/unchargedamuu)
-    print('down a_mu[QCD+QED]/a_mu[QCD]: ',chargedamud/unchargedamud)
-    print('up+down a_mu[QCD]: ',unchargedamud+unchargedamuu)
-    print('up+down a_mu[QCD+QED]: ', chargedamuu+chargedamud)
-    print('up+down a_mu[QCD+QED]/a_mu[QCD]: ',(chargedamud+chargedamuu)/(unchargedamud+unchargedamuu))
+    d_rt = chargedamud/unchargedamud
+    u_rt = chargedamuu/unchargedamuu 
+    amu_qcd = unchargedamud+unchargedamuu
+    amu_qcdqed = chargedamuu+chargedamud
+    amu_rt = amu_qcdqed/amu_qcd
+    amu_diff = (amu_qcdqed-amu_qcd)/amu_qcd
+    amu_diff2 = amu_qcdqed-amu_qcd
 
-
+    print('[d] a_mu[QCD+QED]||a_mu[QCD+QED]/a_mu[QCD]{0:>20}||{1}'.format(chargedamud,d_rt))
+    print('[u] a_mu[QCD+QED]||a_mu[QCD+QED]/a_mu[QCD]{0:>20}||{1}'.format(chargedamuu,u_rt))
+    print('\n[u+d] a_mu[QCD+QED]||a_mu[QCD]||ratio||diff\n{0:20}{1:20}{2:20}{3:20}'.format(amu_qcdqed, amu_qcd, amu_rt, amu_diff2))
+######################################################################################
     
 def build_prior(nexp):
     prior = gv.BufferDict()
@@ -199,5 +206,5 @@ def make_data(filename,norm=1):
 
 
 if __name__ == '__main__':
-    for i in range(1,20):
+    for i in range(10,11):
         main(i)

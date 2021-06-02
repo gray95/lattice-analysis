@@ -28,7 +28,7 @@ lsqfit.LSQFit.fmt_parameter = '%8.4f +- %8.4f'
 hbarc = 0.197326968
 
 def main(tstr):
-    dfile = '/home/gray/Desktop/lattice-analysis/data/qed/vcoarse/comb/rho_dana_selfb_physud.gpl'
+    dfile = '/home/gray/Desktop/lattice-analysis/data/qed/vcoarse/comb/comb_rho_vcoarse_physud.gpl'
 #    tag01 = 'rho_m' + str(mq)
 #    tag02 = 'rho_m' + str(mq) + '_ucav'
 #    tag03 = 'rho_m' + str(mq)
@@ -114,32 +114,35 @@ def main(tstr):
     #vpol = g2.vacpol(moments,order=(2,1))
     vpol = g2.fourier_vacpol(newdata[tags[0]], Z=ZV, ainv=1/a, periodic=False)
     unchargedamuu = g2.a_mu(vpol, 2/3.)
-    print('up a_mu[QCD]: ',unchargedamuu)
  
     #moments = g2.moments(newdata[tags[1]],Z=ZVqed,ainv=1/a,periodic=False)
     #vpol = g2.vacpol(moments,order=(2,1))
     vpol = g2.fourier_vacpol(newdata[tags[1]], Z=ZVqed, ainv=1/a, periodic=False)
     chargedamuu = g2.a_mu(vpol,2/3.)
-    print('up a_mu[QCD+QED]: ',chargedamuu)
 
     #moments = g2.moments(newdata[tags[2]],Z=ZV,ainv=1/a,periodic=False)
     #vpol = g2.vacpol(moments,order=(2,1))
     vpol = g2.fourier_vacpol(newdata[tags[2]], Z=ZV, ainv=1/a, periodic=False)
     unchargedamud = g2.a_mu(vpol,1/3.)
-    print('down a_mu[QCD]: ',unchargedamud)
  
     #moments = g2.moments(newdata[tags[3]],Z=ZVqed,ainv=1/a,periodic=False)
     #vpol = g2.vacpol(moments,order=(2,1))
     vpol = g2.fourier_vacpol(newdata[tags[3]], Z=ZVqed, ainv=1/a, periodic=False)
     chargedamud = g2.a_mu(vpol,1/3.)
-    print('down a_mu[QCD+QED]: ',chargedamud)
 
-    print('up a_mu[QCD+QED]/a_mu[QCD]: ',chargedamuu/unchargedamuu)
-    print('down a_mu[QCD+QED]/a_mu[QCD]: ',chargedamud/unchargedamud)
-    print('up+down a_mu[QCD]: ',unchargedamud+unchargedamuu)
-    print('up+down a_mu[QCD+QED]: ',chargedamuu+chargedamud)
-    print('up+down a_mu[QCD+QED]/a_mu[QCD]: ',(chargedamud+chargedamuu)/(unchargedamud+unchargedamuu))
+    d_rt = chargedamud/unchargedamud
+    u_rt = chargedamuu/unchargedamuu
+    amu_qcd = unchargedamud+unchargedamuu
+    amu_qcdqed = chargedamuu+chargedamud
+    amu_rt = amu_qcdqed/amu_qcd
+    amu_diff = (amu_qcdqed-amu_qcd)/amu_qcd
 
+    print('[d] a_mu[QCD+QED]||a_mu[QCD+QED]/a_mu[QCD]{0:>20}||{1}'.format(chargedamud,d_rt))
+    print('[u] a_mu[QCD+QED]||a_mu[QCD+QED]/a_mu[QCD]{0:>20}||{1}'.format(chargedamuu,u_rt))
+    print('\n[u+d] a_mu[QCD+QED]||a_mu[QCD]||ratio||diff\n{0:20}{1:20}{2:20}{3:20}'.format(amu_qcdqed, amu_qcd, amu_rt, amu_diff))
+
+
+############################################################################
 
     
 def build_prior(nexp):
