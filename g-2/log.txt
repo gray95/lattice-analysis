@@ -44,16 +44,16 @@ THIS IS THE INFORMATION CENTRE
 ---------------------------------------------------------
 vcoarse-7ml our b stream
 
-chi2/dof [dof] = 0.64 [69]    Q = 0.99    logGBF = 941.29
+chi2/dof [dof] = 0.83 [69]    Q = 0.85    logGBF = 1010.9
 
 THIS IS THE INFORMATION CENTRE
 (48, 48, 48)
 ('tmin, tstar', 2, 10)
-[d] a_mu[QCD+QED]||a_mu[QCD+QED]/a_mu[QCD]        8.86(11)e-09||1.0010(79)
-[u] a_mu[QCD+QED]||a_mu[QCD+QED]/a_mu[QCD]       3.543(44)e-08||1.0008(79)
+[d] a_mu[QCD+QED]||a_mu[QCD+QED]/a_mu[QCD]        8.83(11)e-09||0.998990(87)
+[u] a_mu[QCD+QED]||a_mu[QCD+QED]/a_mu[QCD]       3.532(43)e-08||0.99876(32)
 
 [u+d] a_mu[QCD+QED]||a_mu[QCD]||ratio||diff
-4.429(55)e-08       4.425(55)e-08       1.0009(79)          0.0009(79)  
+4.416(54)e-08       4.421(54)e-08       0.99880(27)         -0.00120(27) 
 
 --------------------------------------------------------
 vcoarse-5ml our b stream

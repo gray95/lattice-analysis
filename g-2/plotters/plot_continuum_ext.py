@@ -4,30 +4,21 @@ import numpy as np
 import gvar as gv
 import lsqfit as lsq
 import matplotlib.pyplot as plt
+from amu_results import bmw_diff, giu_diff
+
 
 a_vcoarse = (gv.gvar('0.1715(9)')/gv.gvar('1.13215(35)'))
 a_coarse = (gv.gvar('0.1715(9)')/gv.gvar('1.41490(60)'))
-a_fine = (gv.gvar('0.1715(9)')/gv.gvar('1.9518(7)'))
+#a_fine = (gv.gvar('0.1715(9)')/gv.gvar('1.9518(7)'))
+
+a = [a_vcoarse, a_coarse]
 
 # data hard wired
-vc = gv.gvar('3.30(43)')
-c = gv.gvar('4.60(59)')
-f = gv.gvar('8.4(1.8)')
+#amu       = []
+amu_diff = [gv.gvar('-0.00060(86)'), gv.gvar('-0.0021(13)')]	# [vc,c]
 
-# finite volume  Date: 2 June 2020 at 21:51:12 BST, email from Peter
-vcfv = gv.gvar('6.8(1.4)')
-cfv = gv.gvar('5.4(1.1)')
-ffv = gv.gvar('3.58(72)')
-
-##  correlation
-vcfv,cfv,ffv = gv.correlate([vcfv,cfv,ffv],[[1,0.5,0.5],[0.5,1,0.5],[0.5,0.5,1]])
-#vcfv,cfv,ffv = gv.correlate([vcfv,cfv,ffv],[[1,1,1],[1,1,1],[1,1,1]])
-
-vccorr = vc+vcfv
-ccorr = c+cfv
-fcorr = f+ffv
-
-print(gv.evalcorr([vccorr,ccorr,fcorr]))
+# correlation
+#vcfv,cfv,ffv = gv.correlate([vcfv,cfv,ffv],[[1,0.5,0.5],[0.5,1,0.5],[0.5,0.5,1]])
 
 def extrap(x,p):
     res = []
@@ -38,12 +29,12 @@ def extrap(x,p):
 hbarc = 0.197326968
 
 prior = {}
-prior['a'] = [gv.gvar('12(10)'),gv.gvar(0,100),gv.gvar(0,1),gv.gvar(0,1)]
+prior['a'] = [gv.gvar('0(1)'),gv.gvar(0,1),gv.gvar(0,1),gv.gvar(0,1)]
 
 print(1/(a_vcoarse.mean/hbarc),1/(a_coarse.mean/hbarc))
 
 ## a**2 extrapolation
-fit = lsq.nonlinear_fit(data=([a_vcoarse.mean/hbarc,a_coarse.mean/hbarc,a_fine.mean/hbarc],[vccorr,ccorr,fcorr]),prior=prior,fcn=extrap)
+fit = lsq.nonlinear_fit(data=([a_vcoarse.mean/hbarc,a_coarse.mean/hbarc], amu_diff),prior=prior,fcn=extrap)
 print("Fit results")
 print(fit)
 
@@ -57,37 +48,28 @@ plt.gca().tick_params(right=True,top=True,direction='in')
 fitrange = np.arange(0,a_vcoarse.mean,0.0001)
 fitline = extrap([p/hbarc for p in fitrange],fit.p)
 
-plt.errorbar(a_vcoarse.mean**2,vc.mean,xerr=0,yerr=vc.sdev,fmt='h',mfc='none',color='r',label='Fermilab/HPQCD/MILC',lw=1)
-plt.errorbar(a_coarse.mean**2,c.mean,xerr=0,yerr=c.sdev,fmt='h',mfc='none',color='r',lw=1)
-plt.errorbar(a_fine.mean**2,f.mean,xerr=0,yerr=f.sdev,fmt='h',mfc='none',color='r',lw=1)
-
-plt.errorbar(a_vcoarse.mean**2,vccorr.mean,xerr=0,yerr=vccorr.sdev,fmt='h',color='r',label='Fermilab/HPQCD/MILC corrected',lw=1)
-plt.errorbar(a_coarse.mean**2,ccorr.mean,xerr=0,yerr=ccorr.sdev,fmt='h',color='r',lw=1)
-plt.errorbar(a_fine.mean**2+0.0005,fcorr.mean,xerr=0,yerr=fcorr.sdev,fmt='h',color='r',lw=1)
+plt.errorbar([i.mean**2 for i in a], [x.mean for x in amu_diff],xerr=0,yerr=[y.sdev for y in amu_diff],fmt='h',mfc='none',color='r',label='Fermilab/HPQCD/MILC',lw=1)
 
 plt.plot([p**2 for p in fitrange],[p.mean for p in fitline],'--',color='r')
-plt.fill_between([p**2 for p in fitrange],[p.mean-p.sdev for p in fitline],[p.mean+p.sdev for p in fitline],alpha=0.5,lw=0,color='r')
+plt.fill_between([p**2 for p in fitrange],[p.mean-p.sdev for p in fitline],[p.mean+p.sdev for p in fitline],alpha=0.3,lw=0,color='r')
 
-arbc = 0.11406
 
-plt.errorbar(arbc**2,11.2,xerr=0,yerr=4,fmt='s',mfc='none',color='g',label='RBC/UKQCD [1801.07224]',lw=1)
-
-#plt.errorbar(0,12.8,xerr=0,yerr=1.9,fmt='s',color='b',label='BMW [1711.04980]',lw=1)
-plt.errorbar(0,13.15,xerr=0,yerr=1.8,fmt='s',color='b',label='BMW [2002.12347]',lw=1)
+plt.errorbar(0,bmw_diff.mean,xerr=0,yerr=bmw_diff.sdev,fmt='s',color='b',label='BMW',lw=1)
+plt.errorbar(0,giu_diff.mean,xerr=0,yerr=giu_diff.sdev,fmt='s',color='g',label='Giusti et al.',lw=1)
 
 handles,labels = plt.gca().get_legend_handles_labels()
 handles = [h[0] for h in handles]
-plt.legend(handles=handles,labels=labels,frameon=False,fontsize=8,loc='lower left')
+plt.legend(handles=handles,labels=labels,frameon=False,fontsize=10,loc='upper right')
 
-plt.xlabel('$a^2\ [\mathrm{fm}^2]$')
-plt.ylabel('$-a_{\mu}^{\mathrm{disconn.}} \\times 10^{10}$')
+plt.xlabel('$a^2\ [\mathrm{fm}^2]$', fontsize=15)
+plt.ylabel(r'$\frac{\delta a_{\mu}}{a_{\mu}}$', rotation=0, labelpad=10, fontsize=20)
 
-plt.ylim(bottom=-5)
+#plt.ylim(top=0.00)
 plt.xlim(left=-0.0005)
 
 plt.tight_layout()
-#plt.savefig('./amu_disconn_summary.png')
-plt.show()
+plt.savefig('../figures/amu_qedcorrection_summary.png', dpi=500, bbox_inches="tight")
+#plt.show()
 
 plt.close()
 

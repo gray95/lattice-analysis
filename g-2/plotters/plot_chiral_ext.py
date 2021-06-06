@@ -10,13 +10,13 @@ vc_mphys    = 0.002426				# isospin averaged
 vc_seven_ml = 0.01698 
 vc_five_ml =  0.01213
 vc_three_ml = 0.007278
-vc_rt_7ml = gv.gvar('0.99955(36)') #	old single pol data
+vc_rt_7ml = gv.gvar('0.99880(27)') 
 vc_rt_5ml = gv.gvar('0.99895(51)')
 vc_rt_3ml = gv.gvar('0.9997(12)')
-vc_rphys = gv.gvar('1.0057(65)')	# combined a and b stream
+vc_rphys = gv.gvar('1.0057(65)')	# combined a and b stream (mu-md)!=0
 vc_diff_3ml = gv.gvar('-0.0003(12)') 
 vc_diff_5ml = gv.gvar('-0.00105(51)')
-vc_diff_7ml = gv.gvar('-0.00045(36)')
+vc_diff_7ml = gv.gvar('-0.00120(27)')
 vc_diff_phys= gv.gvar('0.0057(65)')
 
 # coarse t*=13
@@ -30,6 +30,12 @@ c_rt_7ml = gv.gvar('0.99862(31)')
 c_diff_3ml = gv.gvar('-0.0020(12)')
 c_diff_5ml = gv.gvar('-0.00155(54)')
 c_diff_7ml = gv.gvar('-0.00138(31)')
+
+## BMW numbers
+bmw_amuqcd = gv.gvar('633.7(2.1)')
+bmw_amuqcdqed = bmw_amuqcd + gv.gvar('-1.23(40)')# + gv.gvar('6.60(63)')
+bmw_rt = bmw_amuqcdqed/bmw_amuqcd
+bmw_diff = (bmw_amuqcdqed-bmw_amuqcd)/bmw_amuqcd
 
 def extrap(x,p):
     res = []
@@ -67,20 +73,21 @@ plt.errorbar(5,c_diff_5ml.mean,xerr=0,yerr=c_diff_5ml.sdev,fmt='h',mfc='none',co
 plt.errorbar(3,c_diff_3ml.mean,xerr=0,yerr=c_diff_3ml.sdev,fmt='h',mfc='none',color='r',lw=1)
 
 # physical point
-plt.errorbar(1, extrapolated[0].mean,xerr=0,yerr=extrapolated[0].sdev,fmt='h',mfc='none', label='extrapolated physical point', color='b', lw=1)
-#plt.errorbar(1.05, vc_diff_phys.mean,xerr=0,yerr=vc_diff_phys.sdev,fmt='h',mfc='none', label='actual physical point', color='black', lw=1)
+plt.errorbar(1.05, extrapolated[0].mean,xerr=0,yerr=extrapolated[0].sdev,fmt='h',mfc='none', label='linear extrapolation', color='b', lw=1)
+plt.errorbar(0.95, bmw_diff.mean,xerr=0,yerr=bmw_diff.sdev,fmt='h',mfc='none', label='BMW continuum value', color='black', lw=1)
 
 plt.plot([p for p in fitrange],[p.mean for p in fitline],'--',color='r')
 plt.fill_between([p for p in fitrange],[p.mean-p.sdev for p in fitline],[p.mean+p.sdev for p in fitline],alpha=0.5,lw=0,color='r')
 
 handles,labels = plt.gca().get_legend_handles_labels()
 handles = [h[0] for h in handles]
-plt.legend(handles=handles,labels=labels,frameon=False,fontsize=14,loc='upper right')
+plt.legend(handles=handles,labels=labels,frameon=False,fontsize=14,loc='lower right')
 
-plt.xlabel('$m_q/m_l$')
-plt.ylabel(r'$\frac{a_{\mu}^{[qcd+qed]}-a_{\mu}^{[qcd]}}{a_{\mu}^{[qcd]}}$', rotation=0, labelpad=50, fontsize=20)
+plt.xlabel(r'$\frac{m_q}{m_l}$', fontsize=25, labelpad=20)
+plt.ylabel(r'$\frac{\delta a_{\mu}}{a_{\mu}}$', rotation=0, labelpad=30, fontsize=20)
+plt.title('0.12fm ensemble - 56 configs')
 
-#plt.ylim(bottom=.98)
+plt.ylim(top=0.00)
 #plt.xlim(left=0, right=10)
 
 plt.tight_layout()

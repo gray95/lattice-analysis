@@ -8,6 +8,7 @@ filenames.txt
 misc-code
 g2tools
 code/__pycache__
+*.pyc
 *.png
 *.out
 g-2/craigs_scripts

@@ -125,7 +125,7 @@ def main(tstr):
 
     print('[d] a_mu[QCD+QED]||a_mu[QCD+QED]/a_mu[QCD]{0:>20}||{1}'.format(chargedamud,d_rt))
     print('[u] a_mu[QCD+QED]||a_mu[QCD+QED]/a_mu[QCD]{0:>20}||{1}'.format(chargedamuu,u_rt))
-    print('\n[u+d] a_mu[QCD+QED]||a_mu[QCD]||ratio||diff\n{0:20}{1:20}{2:20}{3:20}'.format(amu_qcdqed, amu_qcd, amu_rt, amu_diff2))
+    print('\n[u+d] a_mu[QCD+QED]||a_mu[QCD]||ratio||diff\n{0:20}{1:20}{2:20}{3:20}'.format(amu_qcdqed, amu_qcd, amu_rt, amu_diff))
 ######################################################################################
     
 def build_prior(nexp):
