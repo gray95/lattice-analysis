@@ -8,12 +8,12 @@ Edited by Dan Hatton December 2016
 Edited by Gaurav Ray March 2021
 """
 
-
 import matplotlib
 matplotlib.use('Agg')
 import os
 import sys
 import lsqfit
+sys.path.append('./plotters')
 from corrfitter import Corr2,Corr3,CorrFitter
 import numpy as np
 from gvar import log,exp,evalcov
@@ -22,18 +22,13 @@ import math
 from math import exp as num_exp
 import matplotlib.pyplot as plt
 import g2tools as g2
+from commonweal import w0overa, w0, ZV, ZVqed
 
 lsqfit.LSQFit.fmt_parameter = '%8.4f +- %8.4f'
-
-w0 = gv.gvar('0.1715(9)')
-
-w0overa = gv.gvar('1.1367(5)')	# very coarse ensemble
-ZV = gv.gvar('0.9837(20)') # vc
-
-#w0overa = gv.gvar('1.4149(6)')	# coarse ensemble
-#ZV = gv.gvar('0.99220(40)') # coarse - at strange mass
-
-ZVqed = gv.gvar('0.999544(14)')*ZV # vc/c? - where are these listed
+a_str = 'c'
+w0overa = w0overa[a_str]	
+ZV = ZV[a_str] 
+ZVqed = ZVqed[a_str]*ZV 
 
 hbarc = 0.197326968
 a = (w0/w0overa)/hbarc		# in units of (GeV)^-1
@@ -41,7 +36,7 @@ a = (w0/w0overa)/hbarc		# in units of (GeV)^-1
 print("lattice spacing: ", (w0/w0overa))
 
 def main(tstr):
-    dfile = '/home/gray/Desktop/lattice-analysis/data/qed/vcoarse/self_b/rho_vcoarse_7ml.gpl'
+    dfile = '/home/gray/Desktop/lattice-analysis/data/qqed/coarse/3ml_rho_coarse.gpl'
    
     madedata = make_data(dfile,norm=3.) # factor of 3 for colour (missed in extraction)
     data = madedata[0]
@@ -56,7 +51,7 @@ def main(tstr):
     pfile = None #"vector_fit.p" # last fit
 
     tmin = 2
-    svdcut = 1e-10 #suggestedsvdcut
+    svdcut = suggestedsvdcut
 
     fitter = CorrFitter(models=build_models(tag01,tag02,tag03,tmin,T))
     for nexp in [2,3,4,5]:
@@ -120,54 +115,48 @@ def main(tstr):
     amu_qcd = unchargedamud+unchargedamuu
     amu_qcdqed = chargedamuu+chargedamud
     amu_rt = amu_qcdqed/amu_qcd
-    amu_diff = (amu_qcdqed-amu_qcd)/amu_qcd
-    amu_diff2 = amu_qcdqed-amu_qcd
+    amu_diff_rt = (amu_qcdqed-amu_qcd)/amu_qcd
+    amu_diff = amu_qcdqed-amu_qcd
 
     print('[d] a_mu[QCD+QED]||a_mu[QCD+QED]/a_mu[QCD]{0:>20}||{1}'.format(chargedamud,d_rt))
     print('[u] a_mu[QCD+QED]||a_mu[QCD+QED]/a_mu[QCD]{0:>20}||{1}'.format(chargedamuu,u_rt))
-    print('\n[u+d] a_mu[QCD+QED]||a_mu[QCD]||ratio||diff\n{0:20}{1:20}{2:20}{3:20}'.format(amu_qcdqed, amu_qcd, amu_rt, amu_diff))
+    print('\n[u+d] a_mu[QCD+QED]||ratio||diff||diff rt\n{0:20}{1:20}{2:20}{3:20}'.format(amu_qcdqed, amu_rt, amu_diff, amu_diff_rt))
 ######################################################################################
     
 def build_prior(nexp):
     prior = gv.BufferDict()
 
     prior.add('log(a1:vec:u)',[log(gv.gvar(1,1)) for i in range(nexp)])
-    prior['log(a1:vec:u)'][0] = log(gv.gvar(0.5,1))
+    prior['log(a1:vec:u)'][0] = log(gv.gvar(0.5,0.5))
     prior.add('log(ao:vec:u)',[log(gv.gvar(1,1)) for i in range(nexp)])
-    prior['log(ao:vec:u)'][0] = log(gv.gvar(0.5,1))
-    #prior.add('as1:etac',[gv.gvar(0.001,0.01) for i in range(nexp)])
+    prior['log(ao:vec:u)'][0] = log(gv.gvar(0.5,0.5))
     prior.add('log(dE:vec:u)',[log(gv.gvar(2,2)) for i in range(nexp)])
     prior['log(dE:vec:u)'][0] = log(gv.gvar(1,1))
     prior.add('log(dEo:vec:u)',[log(gv.gvar(1,1)) for i in range(nexp)])
     prior['log(dEo:vec:u)'][0] = log(gv.gvar(1,1))
-    #prior['logdE:etac'][0] = log(gv.gvar(0.1,0.05))
 
     prior.add('log(a1:vec:qed:u)',[log(gv.gvar(1,1)) for i in range(nexp)])
-    prior['log(a1:vec:qed:u)'][0] = log(gv.gvar(0.5,1))
+    prior['log(a1:vec:qed:u)'][0] = log(gv.gvar(0.5,0.5))
     prior.add('log(ao:vec:qed:u)',[log(gv.gvar(1,1)) for i in range(nexp)])
-    prior['log(ao:vec:qed:u)'][0] = log(gv.gvar(0.5,1))
-    #prior.add('as1:etac',[gv.gvar(0.001,0.01) for i in range(nexp)])
+    prior['log(ao:vec:qed:u)'][0] = log(gv.gvar(0.5,0.5))
     prior.add('log(dE:vec:qed:u)',[log(gv.gvar(2,2)) for i in range(nexp)])
     prior['log(dE:vec:qed:u)'][0] = log(gv.gvar(1,1))
     prior.add('log(dEo:vec:qed:u)',[log(gv.gvar(1,1)) for i in range(nexp)])
     prior['log(dEo:vec:qed:u)'][0] = log(gv.gvar(1,1))
 
     prior.add('log(a1:vec:d)',[log(gv.gvar(1,1)) for i in range(nexp)])
-    prior['log(a1:vec:d)'][0] = log(gv.gvar(0.5,1))
+    prior['log(a1:vec:d)'][0] = log(gv.gvar(0.5,0.5))
     prior.add('log(ao:vec:d)',[log(gv.gvar(1,1)) for i in range(nexp)])
-    prior['log(ao:vec:d)'][0] = log(gv.gvar(0.5,1))
-    #prior.add('as1:etac',[gv.gvar(0.001,0.01) for i in range(nexp)])
+    prior['log(ao:vec:d)'][0] = log(gv.gvar(0.5,0.5))
     prior.add('log(dE:vec:d)',[log(gv.gvar(2,2)) for i in range(nexp)])
     prior['log(dE:vec:d)'][0] = log(gv.gvar(1,1))
     prior.add('log(dEo:vec:d)',[log(gv.gvar(1,1)) for i in range(nexp)])
     prior['log(dEo:vec:d)'][0] = log(gv.gvar(1,1))
-    #prior['logdE:etac'][0] = log(gv.gvar(0.1,0.05))
 
     prior.add('log(a1:vec:qed:d)',[log(gv.gvar(1,1)) for i in range(nexp)])
-    prior['log(a1:vec:qed:d)'][0] = log(gv.gvar(0.5,1))
+    prior['log(a1:vec:qed:d)'][0] = log(gv.gvar(0.5,0.5))
     prior.add('log(ao:vec:qed:d)',[log(gv.gvar(1,1)) for i in range(nexp)])
-    prior['log(ao:vec:qed:d)'][0] = log(gv.gvar(0.5,1))
-    #prior.add('as1:etac',[gv.gvar(0.001,0.01) for i in range(nexp)])
+    prior['log(ao:vec:qed:d)'][0] = log(gv.gvar(0.5,0.5))
     prior.add('log(dE:vec:qed:d)',[log(gv.gvar(2,2)) for i in range(nexp)])
     prior['log(dE:vec:qed:d)'][0] = log(gv.gvar(1,1))
     prior.add('log(dEo:vec:qed:d)',[log(gv.gvar(1,1)) for i in range(nexp)])
@@ -206,5 +195,5 @@ def make_data(filename,norm=1):
 
 
 if __name__ == '__main__':
-    for i in range(10,11):
+    for i in range(17,18):
         main(i)

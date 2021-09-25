@@ -2,9 +2,9 @@
 
 import matplotlib.pyplot as plt
 import gvar as gv
-from common_results import bmw_diff, giu_diff, bmw_diffsib
-from common_results import c_amu, c_rt, c_diff, vc_amu, vc_rt, vc_diff
-from common_results import vc_amu_phys, vc_rt_phys, vc_diff_phys
+from commonweal import bmw_diff, giu_diff, bmw_diffsib
+from commonweal import c_amu, c_rt, c_diff, vc_amu, vc_rt, vc_diff
+from commonweal import vc_amu_phys, vc_rt_phys, vc_diff_phys
 
 fig, ax = plt.subplots(figsize=(10,7))
 ax.set_yscale('linear')
@@ -27,7 +27,7 @@ plt.yticks(fontsize=12)#ax.set_yticklabels(fontsize=12)
 ax.legend(frameon=False,fontsize=15,loc='upper right')
 #plt.ylim(top=6)
 #plt.xlim(left=1)
-plt.savefig('../figures/g-2_diff.png', dpi=500, bbox_inches="tight")
+#plt.savefig('../figures/g-2_diff.png', dpi=500, bbox_inches="tight")
 plt.tight_layout()
 plt.show()
 

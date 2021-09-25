@@ -28,7 +28,7 @@ lsqfit.LSQFit.fmt_parameter = '%8.4f +- %8.4f'
 hbarc = 0.197326968
 
 def main(tstr):
-    dfile = '/home/gray/Desktop/lattice-analysis/data/qed/vcoarse/comb/comb_rho_vcoarse_physud.gpl'
+    dfile = '/home/gray/Desktop/lattice-analysis/data/qqed/vcoarse/a_plus_b/rho_vcoarse_physud.gpl'
 #    tag01 = 'rho_m' + str(mq)
 #    tag02 = 'rho_m' + str(mq) + '_ucav'
 #    tag03 = 'rho_m' + str(mq)
@@ -226,5 +226,5 @@ def make_data(filename,norm=1):
 
 
 if __name__ == '__main__':
-    for i in range(10, 11):
+    for i in range(9, 10):
         main(i)
