@@ -8,7 +8,7 @@ import corrfitter as cf
 import os
 import datetime
 from parameters import corr, corrpath, l
-from parameters import T, s_coeff
+from parameters import T, s_coeff, t0, c_hack, NEXP, TFIT, bin_size
 from parameters import OSC, NOISE, WRITE_LOG
 from parameters import SRCs, KEYFMT, tag, ttag, otag
 
@@ -19,63 +19,55 @@ SHOWPLOTS = False         # display plots at end of fits
 print('Temporal extent: ', T)
 
 TDATA = range(T)
-SVDCUT = 0.0005
-NEXP = range(1,13)            # number of exponentials in fit
 tp=T
 
-TFIT = TDATA[1:(T//4 -1)]
-#tmin = 1               # start fit from here for diagonal elements (ll, gg,..)
-#tmax = tmin+6 
-#offtmin = tmin					# off-diagonal elements (lg, gl,..)
-#offtmax = offtmin+6            
-
-t0 = 4                      # initial timeslice to generate priors
-
-c_hack = 1									# sometimes -1 needed to generate priors
-
-
 def main():
-    data, basis = make_data(corrpath)
+    data, basis, SVDCUT = make_data(corrpath)
     fitter = cf.CorrFitter(models=make_models())
     p0 = None
+
     for N in NEXP:
         print(30 * '=', 'nterm =', N)
         prior = make_prior(N, basis)
         fit = fitter.lsqfit(data=data, prior=prior, p0=p0, svdcut=SVDCUT)
         #print(fit.format(pstyle=None if N < 12 else 'm'))
         p0 = fit.pmean
-    print_results(fit, basis, prior, data, l)
+    
+    #print(prior)
+    if fit.chi2/fit.dof > 1.3:
+        print("reduced chi-squared: ", fit.chi2/fit.dof)
+        print("t0 is {}\nfit-range [{},{}]".format(t0, TFIT[0], TFIT[-1]))
+    else:
+        print_results(fit, basis, prior, data, l)
+
     if SHOWPLOTS:
         fit.show_plots(view='ratio')
 
     # check fit quality by adding noise
-    #print('\n==================== add svd, prior noise')
-    #noisy_fit = fitter.lsqfit(
-    #    data=data, prior=prior, p0=fit.pmean, svdcut=None,
-    #    add_svdnoise=True, add_priornoise=True,
-    #   )
-    #print(noisy_fit.format(pstyle=None))
-    #dE = fit.p['etab.dE'][:3]
-    #noisy_dE = noisy_fit.p['etab.dE'][:3]
-    #print('      dE:', dE)
-    #print('noisy dE:', noisy_dE)
-    #print('          ', gv.fmt_chi2(gv.chi2(dE - noisy_dE)))
+    if NOISE:
+        print('\n==================== add svd, prior noise')
+        noisy_fit = fitter.lsqfit(data=data, prior=prior, p0=fit.pmean, svdcut=SVDCUT                                                   ,add_svdnoise=True	, add_priornoise=True)
+        print(noisy_fit.format(pstyle=None))
+        dE = fit.p[tag+'dE'][:3]
+        noisy_dE = noisy_fit.p[tag+'dE'][:3]
+        print('      dE:', dE)
+        print('noisy dE:', noisy_dE)
+        print('          ', gv.fmt_chi2(gv.chi2(dE - noisy_dE)))
 
 def make_data(filename):
     dset = gv.dataset.Dataset(filename)
-    data = c_hack*gv.dataset.avg_data(cf.read_dataset(filename, grep=ttag))        
-    #data = gv.regulate(data, svdcut=0.5)
-    if OSC:
-      basis = cf.EigenBasis(data, keyfmt=KEYFMT, srcs=SRCs, t=(t0, t0+2), tdata=TDATA)
-    else:
-      basis = cf.EigenBasis(data, keyfmt=KEYFMT, srcs=SRCs, t=(t0, t0+1), tdata=TDATA)
-    return data, basis
+    dset = gv.dataset.bin_data(dset, binsize=bin_size)
+    #data = c_hack*gv.dataset.avg_data(cf.read_dataset(filename, grep=tag))        
+    data = c_hack*gv.dataset.avg_data(dset)        
+    s = gv.dataset.svd_diagnosis(cf.read_dataset(filename, grep=tag), models=make_models())
+    basis = cf.EigenBasis(data, keyfmt=KEYFMT, srcs=SRCs, t=(t0, t0+1), tdata=TDATA, osc=OSC)
+    return data, basis, s.svdcut
 
 def make_models():
     models = []
     for i, s1 in enumerate(SRCs):
         for s2 in SRCs[i:]:
-            tfit=TFIT if s1 == s2 else TFIT[:(T//4 -1)]
+            tfit=TFIT if s1 == s2 else TFIT[:]
             otherdata = None if s1 == s2 else KEYFMT.format(s1=s2, s2=s1)
             if OSC:
                 models.append(cf.Corr2(datatag=KEYFMT.format(s1=s1, s2=s2),tdata=TDATA, tfit=tfit, tp=tp, a=(tag+s1,otag+s1), b=(tag+s2,otag+s2), dE=(tag+'dE',otag+'dE'), otherdata=otherdata, s=s_coeff))
@@ -84,13 +76,10 @@ def make_models():
     return models
 
 def make_prior(N, basis):
-    prior = basis.make_prior(nterm=N, keyfmt=tag+'{s1}')#, eig_srcs=True) 
-    if OSC: 
-        prior1 = collections.OrderedDict()
-        for i in SRCs:
-          prior1[otag+i] = gv.gvar(['1(0.9)'] + (N-1) * ['0.5(5)'])   
-        prior1['log('+otag+'dE)'] = gv.log(gv.gvar(['1.7(4)'] + (N-1)*['0.5(4)']))
-        prior.update(prior1)    
+    prior = basis.make_prior(nterm=N, keyfmt=tag+'{s1}', states=[0,1,2,3])#, eig_srcs=True) 
+    #if OSC:
+    #    prior1 = basis.make_prior(nterm=N, keyfmt=otag+'{s1}')#, states=[]) 
+    #    prior.update(prior1)    
     return prior
             
     
@@ -101,31 +90,24 @@ def print_results(fit, basis, prior, data, logfile=None):
       l.write('file: '+ corr + '\n')
       l.write('t0: '+ str(t0) + '\n')
       l.write('T: '+ str(T) + '\n')
-      l.write('tmin: '+ str(tmin) + '\n')
-      l.write('tmax: '+ str(tmax) + '\n\n')
-      l.write('offtmin: '+ str(offtmin) + '\n')
-      l.write('offtmax: '+ str(offtmax) + '\n\n')
+      l.write('tmin: '+ str(TFIT[0]) + '\n')
+      l.write('tmax: '+ str(TFIT[-1]) + '\n\n')
+      #l.write('svdcut: '+ str(SVDCUT) + '\n')
+      #l.write('offtmin: '+ str(offtmin) + '\n')
+      #l.write('offtmax: '+ str(offtmax) + '\n\n')
       l.write(30 * '=' + '\n' + 'nterm = ' +  str(NEXP[-1]) + '\n')
     print(fit.format(pstyle='m'), file=logfile)
     print(30 * '=', 'Results\n', file=logfile)
-    print(basis.tabulate(fit.p, keyfmt=tag+'{s1}', nterm=6), file=logfile)
-    print(basis.tabulate(fit.p, keyfmt=tag+'{s1}', nterm=6, eig_srcs=True), file=logfile)
+    print(basis.tabulate(fit.p, keyfmt=tag+'{s1}', nterm=4), file=logfile)
+    print(basis.tabulate(fit.p, keyfmt=tag+'{s1}', nterm=4, eig_srcs=True), file=logfile)
     if OSC:
       print('Oscillating states:', file=logfile)
-      print(basis.tabulate(fit.p, keyfmt=otag+'{s1}', nterm=3), file=logfile)
+      print(basis.tabulate(fit.p, keyfmt=otag+'{s1}', nterm=4), file=logfile)
     E = np.cumsum(fit.p[tag+'dE'])
-    #outputs = collections.OrderedDict()
-    #outputs['a*E(2s-1s)'] = E[1] - E[0]
-    #outputs['a*E(3s-1s)'] = E[2] - E[0]
-    #outputs['E(3s-1s)/E(2s-1s)'] = (E[2] - E[0]) / (E[1] - E[0])
-    #inputs = collections.OrderedDict()
-    #inputs['prior'] = prior
-    #inputs['data'] = data
-    #inputs['svdcut'] = fit.svdcorrection
-    #print(gv.fmt_values(outputs), file=logfile)
-    #print(gv.fmt_errorbudget(outputs, inputs, colwidth=18), file=logfile)
-
-    print('Prior:\n', file=logfile)
+    
+    print('Priors:', file=logfile)
+    for k in [otag+SRCs[i] for i in range(len(SRCs))]:
+        print('{:10}{}...'.format(k, list(prior[k][:5])), file=logfile)
     for k in [tag+SRCs[i] for i in range(len(SRCs))]:
         print('{:10}{}...'.format(k, list(prior[k][:5])), file=logfile)
 
