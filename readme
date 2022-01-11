@@ -1,1 +1,19 @@
-4864f211b600m001907m05252m6382 - coarse physical point
+Jan 2022 |                      
+----------
+
+These are a collection of scripts for analysing meson correlators from lattice QCD simulations.
+
+These scripts rely heavily on Peter Lepage's corrfitter and g2tools libraries.
+
+[code]
+
+These scripts were written with the analysis of hybrid mesons in mind.
+
+[g-2]
+
+these scripts are for estimating the hvp contribution to the muon's anomalous magnetic moment. The idea is fairly simple,
+			1) Fit vector correlators
+			2) Fourier transform
+			3) Integrate over kernel
+
+

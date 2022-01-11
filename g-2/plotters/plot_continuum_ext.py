@@ -21,11 +21,11 @@ a = [ a_vcoarse, a_coarse, a_fine]
 xdata = [x.mean/hbarc for x in a]
 
 ## tweaking data to match bmw error
-f = m.sqrt(2)
+f = m.sqrt(1.5)
 
 vc_test     = gv.gvar(vc_diff_phys_ext.mean, vc_diff_phys_ext.sdev/f)
-c_test      = gv.gvar(c_diff_phys_ext.mean,  vc_diff_phys_ext.sdev/f)
-f_madeup    = gv.gvar(-0.7*10**-10, vc_diff_phys_ext.sdev/f)
+c_test      = gv.gvar(c_diff_phys_ext.mean,  c_diff_phys_ext.sdev/f)
+f_madeup    = gv.gvar(-0.5*10**-10, c_diff_phys_ext.sdev/f)
 
 ydata = [vc_test, c_test, f_madeup]
 #ydata = [vc_diff_phys_ext, c_diff_phys_ext]
@@ -43,7 +43,7 @@ def fitargs(z):
 		dp = z
 		prior = {}
 		#prior['log(a)'] = gv.gvar([log(gv.gvar(2.7, dp)), log(gv.gvar(1, dp*10))])
-		prior['a'] = gv.gvar([gv.gvar(-1, dp), gv.gvar(0, dp*10)])
+		prior['a'] = gv.gvar([gv.gvar(0, 1), gv.gvar(0, dp)])
 		return dict(prior=prior, fcn=extrap, data=(xdata, ydata))
 
 ##-----------------------------------------------------------------------#########
@@ -93,7 +93,7 @@ plt.ylabel(r'$\delta a_{\mu}^{\small\mathrm{qed,conn}}$', rotation=0, labelpad=2
 plt.xlim(left=-0.0005)
 
 plt.tight_layout()
-plt.savefig('../figures/MADEUPdiff_continuum_ext.png', dpi=500, bbox_inches="tight")
+#plt.savefig('../figures/MADEUPdiff_continuum_ext.png', dpi=500, bbox_inches="tight")
 plt.show()
 
 plt.close()

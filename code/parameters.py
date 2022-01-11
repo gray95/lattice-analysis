@@ -10,13 +10,13 @@ CORRFIT   = True
 PLOT      = False
 NOISE     = False 
 SAVEFIG   = False 
-WRITE_LOG = False
+WRITE_LOG = True 
 
 ## MATRIX FIT PARAMETERS
-NEXP = range(1,11)            # number of exponentials in fit
-t0 = 2                     # initial timeslice to generate priors
-tmin = 1
-tmax = 7
+NEXP = range(4,11)            # number of exponentials in fit
+t0 = 3                     # initial timeslice to generate priors
+tmin = 2
+tmax = 6
 c_hack = 1									# sometimes -1 needed to generate priors
 bin_size = 1
 
@@ -30,7 +30,7 @@ corr = 'onemm_fine_m450.gpl'
 basedir = '../data/hybrid'
 corrpath  = os.path.join(basedir, ensemble, corr)
 #SRCs = ['l', 'g']
-SRCs = ['H', 'h', 'R', 'r']
+SRCs = ['R', 'r', 'H', 'h']
 KEYFMT = 'onemm.{s1}{s2}'
 tag    = re.sub('{s1}{s2}', '', KEYFMT)
 ttag   = tag[:-1]
@@ -41,14 +41,14 @@ data = gv.dataset.avg_data(cf.read_dataset(corrpath, grep=tag))
 #data = gv.dataset.avg_data(cf.read_dataset(corrpath))     
 
 s_coeff = (1, -1)
-key  = tag+SRCs[1]+SRCs[1]    
+key  = tag+SRCs[0]+SRCs[0]    
 corrtag = corr[:-4]
 #otherkey = tag+SRCs[0]+SRCs[0] 
 otherkey = None
 T = data[key].size
 TDATA = range(T)
 TP    = T
-TFIT  = TDATA[tmin:tmax]
+TFIT  = TDATA[tmin:tmax+1]
 
 
 # LOG

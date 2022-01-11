@@ -1,5 +1,6 @@
 # script to plot various quantities 
-
+import sys
+sys.path.append('..')
 import matplotlib.pyplot as plt
 import gvar as gv
 from commonweal import a, onemp_a, onemp_mass, plym_onemp_gev

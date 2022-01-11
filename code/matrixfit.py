@@ -25,7 +25,7 @@ def main():
     data, basis, SVDCUT = make_data(corrpath)
     fitter = cf.CorrFitter(models=make_models())
     p0 = None
-
+    print("svd cut is: ", SVDCUT)
     for N in NEXP:
         print(30 * '=', 'nterm =', N)
         prior = make_prior(N, basis)
@@ -34,9 +34,10 @@ def main():
         p0 = fit.pmean
     
     #print(prior)
-    if fit.chi2/fit.dof > 1.3:
+    if fit.chi2/fit.dof > 1.5:
         print("reduced chi-squared: ", fit.chi2/fit.dof)
         print("t0 is {}\nfit-range [{},{}]".format(t0, TFIT[0], TFIT[-1]))
+        #print_results(fit, basis, prior, data, l)
     else:
         print_results(fit, basis, prior, data, l)
 
@@ -75,14 +76,34 @@ def make_models():
             
     return models
 
-def make_prior(N, basis):
-    prior = basis.make_prior(nterm=N, keyfmt=tag+'{s1}', states=[0,1,2,3])#, eig_srcs=True) 
+#def make_prior(N, basis):
+#    prior = basis.make_prior(nterm=N, keyfmt=tag+'{s1}')#, states=[2]) 
+    #prior['log(onemm.dE)'][2] = gv.log(gv.gvar('2.0(2)'))
+
     #if OSC:
-    #    prior1 = basis.make_prior(nterm=N, keyfmt=otag+'{s1}')#, states=[]) 
-    #    prior.update(prior1)    
-    return prior
-            
-    
+        #prior1 = basis.make_prior(nterm=N, keyfmt=otag+'{s1}')#, states=[]) 
+        #prior.update(prior1)    
+#    return prior
+
+def make_prior(N, basis):
+   prior = basis.make_prior(nterm=N, keyfmt=tag+'{s1}', states=[])
+   #prior1 = collections.OrderedDict()    
+   prior['onemm.R'][0]       = gv.gvar('-0.16(1)')
+   prior['onemm.r'][0]       = gv.gvar('-0.069(1)')
+   #prior['onemm.R'][1]       = gv.gvar('0.19(2)')
+   prior['onemm.H'][3]       = gv.gvar('-0.09(2)')
+   prior['onemm.h'][3]       = gv.gvar('-0.028(3)')
+   prior['log(onemm.dE)'][0] = gv.log(gv.gvar('1.41(2)'))
+   #prior['log(onemm.dE)'][1] = gv.log(gv.gvar('0.50(5)'))
+   #prior['log(onemm.dE)'][2] = gv.log(gv.gvar('0.30(5)'))
+   
+   #----------OSC PARAMS-------------#
+   if OSC:
+     prior['o.r'][0]       = gv.gvar('0.022(3)')
+     prior['o.R'][0]       = gv.gvar('0.058(9)')
+     prior['log(o.dE)'][0] = gv.log(gv.gvar('1.61(2)'))   
+   return prior       
+   
 def print_results(fit, basis, prior, data, logfile=None):
     
     if WRITE_LOG:
@@ -98,8 +119,8 @@ def print_results(fit, basis, prior, data, logfile=None):
       l.write(30 * '=' + '\n' + 'nterm = ' +  str(NEXP[-1]) + '\n')
     print(fit.format(pstyle='m'), file=logfile)
     print(30 * '=', 'Results\n', file=logfile)
-    print(basis.tabulate(fit.p, keyfmt=tag+'{s1}', nterm=4), file=logfile)
-    print(basis.tabulate(fit.p, keyfmt=tag+'{s1}', nterm=4, eig_srcs=True), file=logfile)
+    print(basis.tabulate(fit.p, keyfmt=tag+'{s1}', nterm=6), file=logfile)
+    print(basis.tabulate(fit.p, keyfmt=tag+'{s1}', nterm=6, eig_srcs=True), file=logfile)
     if OSC:
       print('Oscillating states:', file=logfile)
       print(basis.tabulate(fit.p, keyfmt=otag+'{s1}', nterm=4), file=logfile)

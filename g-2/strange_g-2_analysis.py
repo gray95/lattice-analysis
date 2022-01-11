@@ -8,7 +8,6 @@ Edited by Dan Hatton December 2016
 Edited by Gaurav Ray March 2021
 """
 
-
 import matplotlib
 matplotlib.use('Agg')
 import os
@@ -27,7 +26,9 @@ import lsqfit as lsq
 from commonweal import w0, w0overa, ZV, ZVqed
 
 lsqfit.LSQFit.fmt_parameter = '%8.4f +- %8.4f'
-a_str = 'f'
+#-------------
+a_str = 'c' #|
+#-------------
 hbarc = 0.197326968
 a = (w0/w0overa[a_str])/hbarc		# in units of (GeV)^-1
 ainv = 1/a
@@ -37,7 +38,7 @@ ZV = ZV[a_str]
 ZVqed = ZVqed[a_str]*ZV
 
 def main(tstr):
-    dfile = '../data/qqed/fine/ms_rho_fine.gpl'
+    dfile = '../data/qqed/coarse/ms_rho_coarse.gpl'
    
     madedata = make_data(dfile,norm=3.) # factor of 3 for colour (missed in extraction)
     cdata = madedata[0]
@@ -125,7 +126,6 @@ def main(tstr):
  
     vpol = g2.fourier_vacpol(newdata[tags[1]], Z=ZVqed, ainv=1/a, periodic=False)
     chargedamus = g2.a_mu(vpol,1/3.)
-
 
     amus_rt = chargedamus/unchargedamus
     amu_diff = chargedamus-unchargedamus
@@ -237,5 +237,5 @@ def print_results(fit, ainv, Zv,Zvqed):
     print("Decay constant [diff] = " , f_diff, "GeV" )
 
 if __name__ == '__main__':
-    for i in range(28,29):
+    for i in range(18,19):
         main(i)

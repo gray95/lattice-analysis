@@ -5,6 +5,7 @@ import gvar as gv
 import lsqfit as lsq
 import matplotlib.pyplot as plt
 import sys
+sys.path.append('..')
 from commonweal import plym_onemp_gev, pp_gev
 from commonweal import a # list of lattice spacings coarsest --> finest
 
@@ -81,21 +82,21 @@ plt.text(0.001 , 2*2.343 +0.05  , r"$D_0^{\star}(2300)\overline{D_0}^{\star}(230
 plt.plot([0.0 , 0.025 ] , [ 2*2.343 , 2*2.343  ] , "--", color = "black", lw=0.4 )
 #---------------------------------------------------------------------------
 
-plt.text(0.016, 3.9, 'PRELIMINARY', fontsize=6, bbox={'facecolor': 'green', 'alpha': 0.7, 'pad': 4})
+plt.text(0.016, 3.9, 'PRELIMINARY', fontsize=6, bbox={'facecolor': 'pink', 'alpha': 0.7, 'pad': 4})
 
 handles,labels = plt.gca().get_legend_handles_labels()
 handles = [h[0] for h in handles]
-plt.legend(handles=handles,labels=labels,frameon=False,fontsize=6,loc='lower right')
+plt.legend(handles=handles,labels=labels,frameon=False,fontsize=8,loc='lower right')
 
-plt.xlabel('$a^2\ [\mathrm{fm}^2]$', fontsize=15)
-plt.ylabel('mass\n [GeV]', rotation=0, labelpad=30, fontsize=14)
+plt.xlabel('$a^2\ [\mathrm{fm}^2]$', fontsize=10)
+plt.ylabel('mass\n [GeV]', rotation=0, labelpad=10, fontsize=10)
 plt.title(r'Summary of $\overline{c}c$ $1^{-+}$ masses')
 plt.ylim(top=5, bottom=3.3)
 plt.xlim(left=-0.0002)
 
 
 plt.tight_layout()
-plt.savefig('../figures/onemp_summary.png', dpi=500, bbox_inches="tight")
+plt.savefig('../../figures/onemp_summary.png', dpi=500, bbox_inches="tight")
 plt.show()
 
 plt.close()

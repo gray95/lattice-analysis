@@ -26,11 +26,15 @@ amp = gv.gvar('0.16381(54)')
 
 ## onemm - only at fine a 
 
-plym_onemm = [gv.gvar('2.000(80)')]		# placeholder
+plym_onemm = [gv.gvar('2.001(52)')]	# 4-by-4 fit	
 plym_onemm_gev = [ plym_onemm[i]*(hbarc/a[i-1]) for i in range(len(plym_onemm)) ]
-onemm_mass = {"hadspec" : gv.gvar('4.411(30)'),
-							"brambilla" : gv.gvar('4.410(15)')	}
+onemm_mass = {"hadspec"   : gv.gvar('4.411(30)'),
+              "brambilla" : gv.gvar('4.410(15)'),
+              "chen"      : gv.gvar('4.33(2)')    }
 
-print(plym_onemm_gev)
+##Experimental states
+onemm_exp = {"psi4230" : gv.gvar('4.220(15)'),
+             "psi4360" : gv.gvar('4.368(13)'),
+             "psi4415" : gv.gvar('4.421(4)')     }
 
 

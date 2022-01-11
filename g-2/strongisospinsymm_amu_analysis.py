@@ -25,7 +25,7 @@ import g2tools as g2
 from commonweal import w0overa, w0, ZV, ZVqed
 
 lsqfit.LSQFit.fmt_parameter = '%8.4f +- %8.4f'
-a_str = 'c'
+a_str = 'vc'
 w0overa = w0overa[a_str]	
 ZV = ZV[a_str] 
 ZVqed = ZVqed[a_str]*ZV 
@@ -36,7 +36,7 @@ a = (w0/w0overa)/hbarc		# in units of (GeV)^-1
 print("lattice spacing: ", (w0/w0overa))
 
 def main(tstr):
-    dfile = '/home/gray/Desktop/lattice-analysis/data/qqed/coarse/3ml_rho_coarse.gpl'
+    dfile = '/home/gray/Desktop/lattice-analysis/data/qqed/vcoarse/self_c/3ml_vcoarse.gpl'
    
     madedata = make_data(dfile,norm=3.) # factor of 3 for colour (missed in extraction)
     data = madedata[0]
@@ -110,6 +110,7 @@ def main(tstr):
     vpol = g2.fourier_vacpol(newdata[tags[2]], Z=ZVqed, ainv=1/a, periodic=False)
     chargedamud = g2.a_mu(vpol,1/3.)
 
+    ## QUESTION: does changing the order of addition here affect the errors? 
     d_rt = chargedamud/unchargedamud
     u_rt = chargedamuu/unchargedamuu 
     amu_qcd = unchargedamud+unchargedamuu
@@ -195,5 +196,5 @@ def make_data(filename,norm=1):
 
 
 if __name__ == '__main__':
-    for i in range(17,18):
+    for i in range(10,11):
         main(i)
