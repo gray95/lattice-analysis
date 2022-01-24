@@ -32,22 +32,25 @@ a_str = 'c' #|
 hbarc = 0.197326968
 a = (w0/w0overa[a_str])/hbarc		# in units of (GeV)^-1
 ainv = 1/a
-print("lattice spacing (fm): ", a*hbarc)
+print("lattice spacing = %sfm"%(a*hbarc))
 
 ZV = ZV[a_str]
 ZVqed = ZVqed[a_str]*ZV
 
 def main(tstr):
-    dfile = '../data/qqed/coarse/ms_rho_coarse.gpl'
+    dfile = '../data/qqed/FV/large-40/ms_rho_coarse.gpl'
    
     madedata = make_data(dfile,norm=3.) # factor of 3 for colour (missed in extraction)
     cdata = madedata[0]
     T = cdata.size / len(madedata[1]) 		# extent in time dir
     tag01 = madedata[1][0]
     tag02 = madedata[1][1]
-    print("time extent is: ", T)
+
+    print("time extent = %d"%(T))
     print(dfile)
     print(len(cdata[tag01]))
+    print("t* = %d = %sfm"%(tstr, a*hbarc*tstr))
+
     suggestedsvdcut = madedata[2]
     tmin = 2
     svdcut = suggestedsvdcut
@@ -128,12 +131,14 @@ def main(tstr):
     chargedamus = g2.a_mu(vpol,1/3.)
 
     amus_rt = chargedamus/unchargedamus
-    amu_diff = chargedamus-unchargedamus
-    amu_diff_rt = amu_diff/unchargedamus
+    amus_diff = chargedamus-unchargedamus
+    amus_diff_rt = amus_diff/unchargedamus
 
     ## PRINT RESULTS FOR anomaly
-    print('\n[s] a_mu[QCD+QED] || ratio || diff || diff_rt\n{0:20}{1:20}{2:20}{3:20}'.format(chargedamus, amus_rt, amu_diff, amu_diff_rt))    
-    #print('[s] a_mu[QCD+QED]{0:>20}\n|a_mu[QCD+QED]-a_mu[QCD]{1:>20}\n|a_mu/a_mu {2:>20}'.format(chargedamus, amu_rt, amu_diff, amu_diff_rt))
+    print('\n[s] a_mu[QCD+QED] || ratio || diff || diff_rt\n{0:20}{1:20}{2:20}{3:20}'.format(chargedamus, amus_rt, amus_diff, amus_diff_rt))    
+    inputs = { 'a':a, 'ZV':ZV, 'ZVqed':ZVqed }
+    outputs = { 'amu':chargedamus, 'amu diff':amus_diff, 'amu rt':amus_rt }
+    print(gv.fmt_errorbudget(outputs=outputs, inputs=inputs))
 ######################################################################################
     
 def build_prior(nexp, dp, a):
@@ -202,40 +207,40 @@ def print_results(fit, ainv, Zv,Zvqed):
     Eo = np.cumsum(p['dEo:vec:s'])
     ao = p['ao:vec:s']
 
-
     Eqed =  np.cumsum(p['dE:vec:qed:s'])
     aqed = p['a1:vec:qed:s']
 
-    print("Decay constant calculation")
-    print("Ground Mass [QCD] = " , E[0], "lattice units")
-    print("Ground Mass [QCD+QED] = " , Eqed[0], "lattice units")
-    ddd = Eqed[0] - E[0]
-    print("Mass diff = " , ddd , "lattice units")
-    ddd *= 1000*ainv
-    print("Mass diff = " , ddd , "MeV")
+    inputs = {'E[0]':E[0], 'Eqed[0]':Eqed[0], 'a[0]':a[0], 'aqed[0]':aqed[0], 'a':1/ainv, 'Zv':Zv, 'Zvqed':Zvqed }
+    phi_mass = E[0] * ainv
+    phi_qed_mass = Eqed[0] * ainv
+    phi_mass_diff = (phi_qed_mass-phi_mass)*1000
+    phi_mass_rt = phi_qed_mass/phi_mass
+    phi_mass_diff_rt = phi_mass_diff/phi_mass
+    print("phi mass is %s GeV in qcd"%(phi_mass))
+    print("phi mass is %s GeV in qcd+qqed"%(phi_qed_mass))
+    print("phi mass diff = %s MeV"%((phi_mass_diff)))
+    print("phi mass ratio = %s"%(phi_mass_rt))
+    print("phi mass diff-ratio = %s \n"%(phi_mass_diff_rt))
 
-    print("Ground Mass [QCD] = " , E[0] * ainv, " GeV")
-    print("Ground Mass [QCD+QED] = " , Eqed[0] * ainv, " GeV")
-    print("Amplitide = " , a[0])
+    print("a[0] is %s\n"%(a[0]))
 
-    f_phi_latt = a[0] * (2.0 / E[0])**(1/2)
+    f_phi_latt = m.sqrt(3) * a[0] * (2.0 / E[0])**(1/2) 
     f_phi_gev = f_phi_latt * ainv * Zv 
-
-    print("Decay constant [QCD] = " , f_phi_latt  , "lattice")
-    print("Decay constant [QCD] = " , f_phi_gev  , "GeV")
-
-    # ZVqed
-    f_phi_qed_latt = aqed[0] * (2.0 / Eqed[0])**(1/2)
+    f_phi_qed_latt = m.sqrt(3) * aqed[0] * (2.0 / Eqed[0])**(1/2)
     f_phi_qed_gev = f_phi_qed_latt * ainv * Zvqed
-
-    print("Decay constant [QCD+QED] = " , f_phi_qed_gev  , "GeV")
-
-    f_rat = f_phi_qed_gev/f_phi_gev 
-    print("Ratio Decay constant [QCD+QED]/[QCD] = " , f_rat )
-    
+    f_rt = f_phi_qed_gev/f_phi_gev 
     f_diff = f_phi_qed_gev - f_phi_gev 
-    print("Decay constant [diff] = " , f_diff, "GeV" )
+
+    print("vector leptonic decay constant is %s GeV in qcd"%(f_phi_gev)) 
+    print("vector leptonic decay constant is %s GeV in qcd+qqed"%(f_phi_qed_gev)) 
+    print("vector leptonic decay diff is %s GeV"%(f_diff)) 
+    print("vector leptonic decay constant ratio is %s"%(f_rt)) 
+    print("vector leptonic decay constant diff-ratio is %s\n"%(f_diff/f_rt)) 
+
+    outputs = { 'phi M':phi_qed_mass, 'phi f':f_phi_qed_gev, 'M/M0':phi_mass_rt, 'f/f0':f_rt}
+    print(gv.fmt_errorbudget(outputs=outputs, inputs=inputs))
+    
 
 if __name__ == '__main__':
-    for i in range(18,19):
+    for i in range(17,18):
         main(i)
