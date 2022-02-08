@@ -19,16 +19,18 @@ c_diff_phys_ext15 = gv.gvar('-2.1(2.4)e-11')
 #c_rt_phys_ext15 = gv.gvar('')
 
 
+vc_3ml = gv.load('../results/3ml_results.p')
+vc_5ml = gv.load('../results/5ml_results.p')
+vc_7ml = gv.load('../results/7ml_results.p')
+
+vc = [vc_3ml, vc_5ml, vc_7ml]
 ## VERY COARSE t*~2fm
-vc_amu = [gv.gvar('5.158(91)e-08'), gv.gvar('4.800(62)e-08'), gv.gvar('4.497(51)e-08')]
-vc_rt  = [gv.gvar('0.9994(29)'), gv.gvar('0.9990(15)'), gv.gvar('0.99889(86)')]
-vc_diff = [gv.gvar('-3(15)e-11'), gv.gvar('-4.7(7.2)e-11'), gv.gvar('-5.0(3.9)e-11')]
-vc_diff_rt= [gv.gvar('-0.0006(29)'), gv.gvar('-0.0010(15)'), gv.gvar('-0.00111(86)')]
-vc_diff_phys_ext = gv.gvar('-2.2(7.5)e-11') 
-#vc_rt_phys_ext = gv.gvar('0.9995(34)')
-#
-#vc_amu_phys = gv.gvar('5.47(22)e-08')	# combined b streams - none of dan's a stream
+vc_amu = [x['up-nocharge']+x['down-nocharge'] for x in vc]
+vc_rt  = [(x['up-charge']+x['down-charge'])/(x['up-nocharge']+x['down-nocharge']) for x in vc]
+vc_diff= [(x['up-charge']+x['down-charge'])-(x['up-nocharge']+x['down-nocharge']) for x in vc]
+vc_diff_phys_ext = gv.gvar('-3.6(2.4)e-11') 
 vc_rt_phys  = gv.gvar('1.0155(81)') # incl sib
+
 # t*~1.5fm
 vc_amu15 = [gv.gvar('5.134(80)e-08'), gv.gvar('4.785(58)e-08'), gv.gvar('4.488(49)e-08')]
 vc_rt15  = [gv.gvar('1.0001(51)'), gv.gvar('0.9994(29)'), gv.gvar('0.9991(15)')]
@@ -38,74 +40,103 @@ vc_diff_phys_ext15 = [gv.gvar('1(30)e-11')]
 vc_rt_phys_ext15 = gv.gvar('0.9995(34)')
 
 
+################## STRANGE MASS ###############################################
 
-# unless specified ONLY qed isospin breaking included.
-
-# BMW numbers - continuum values - only statistical errors included
-bmw_amuqcd = gv.gvar('633.7(2.1)')	
-bmw_amuqcdqed = bmw_amuqcd + gv.gvar('-1.23(40)')# + gv.gvar('6.60(63)')
-bmw_amuqcdqedsib = bmw_amuqcd + gv.gvar('-1.23(40)') + gv.gvar('6.60(63)')
-bmw_rt = bmw_amuqcdqed/bmw_amuqcd
-bmw_rtsib = bmw_amuqcdqedsib/bmw_amuqcd	# including strong isospin breaking
-bmw_diff = gv.gvar('-1.23(40)')
-bmw_diff_rt = (bmw_amuqcdqed-bmw_amuqcd)/bmw_amuqcd
-bmw_diffsib = (bmw_amuqcdqedsib-bmw_amuqcd)/bmw_amuqcd
-
-# Giusti et al [1909.01962]
-giu_diff = gv.gvar('1.1(1.0)')/gv.gvar('619.0(17.8)')
-# note: they got the denominator from somewhere else
-
-# HPQCD [For summary: Phys Rev D 101, 034512 (2020) - Table VI]
-hpqcd_amu_ud = gv.gvar('637.8(8.8)e-10') # isospin symm, no qed
-
-
-
-## STRANGE MASS t* = 2.5fm
 #----------------------------------------------
-# Our results [VERY Coarse]- incl qQED
-vc_amu_s       = gv.gvar('5.463(56)e-09')
-vc_amu_rt_s    = gv.gvar('0.998877(29)')
-vc_amudiff_s   = gv.gvar('-6.14(17)e-12')
-vc_amudiffrt_s = gv.gvar('-0.001123(29)')
+## [VERY Coarse]- incl qQED
+vc_amus        = gv.gvar('5.144(51)e-09')
+vc_amus_rt     = gv.gvar('0.998889(28)')
+vc_amus_diff   = gv.gvar('-5.72(15)e-12')
 #----------------------------------------#
-vc_phi_mass   = gv.gvar('1.0382(56)')
-vc_delta_phi  = gv.gvar('0.256(19)')
-vc_fphi       = gv.gvar('0.1580(11)')
-vc_fphi_rt    = gv.gvar('0.999994(89)')
-# [Coarse]
-c_amu_s       = gv.gvar('5.386(54)e-09')
-c_amu_rt_s    = gv.gvar('0.998989(48)')
-c_amudiff_s   = gv.gvar('-5.45(27)e-12')
-c_amudiffrt_s = gv.gvar('-0.001011(48)')
+vc_phi_m       = gv.gvar('1.0365(56)')
+vc_phi_m_rt    = gv.gvar('1.000236(21)')
+vc_phi_m_diff  = gv.gvar('0.245(22)') 	# MeV
+vc_phi_f       = gv.gvar('241.0(1.8)')
+vc_phi_f_rt    = gv.gvar('0.99984(12)')
+vc_phi_f_diff  = gv.gvar('-0.038(28)')
+## Q=2e/3 - unphysical
+#vc_amu_rt_s    = gv.gvar('')
+#vc_amudiff_s   = gv.gvar('')
+#----------------------------------------#
+#vc_phi_mass   = gv.gvar('')
+#vc_delta_phi  = gv.gvar('')
+#vc_fphi       = gv.gvar('')
+#vc_fphi_diff    = gv.gvar('')
+
+
+# [Coarse] t*=21 ~ 2.5fm
+c_amus        = gv.gvar('5.173(52)e-09') # on physical ensemble
+c_amus_rt     = gv.gvar('0.998990(48)')
+c_amus_diff   = gv.gvar('-5.23(25)e-12')
 #---------------------------------------#
-c_phi_mass    = gv.gvar('1.0332(57)')
-c_delta_phi   = gv.gvar('0.26(64)') 	# MeV
-c_fphi        = gv.gvar('0.1381(12)')
-c_fphi_rt     = gv.gvar('1.0001(32)')
+c_phi_m       = gv.gvar('1.0336(55)')
+c_phi_m_rt    = gv.gvar('1.000234(12)')
+c_phi_m_diff  = gv.gvar('0.242(12)') 	# MeV
+c_phi_f       = gv.gvar('240.2(1.6)')
+c_phi_f_rt    = gv.gvar('0.999861(62)')
+c_phi_f_diff  = gv.gvar('-0.033(15)')
+# FV runs on L=24,40 unphysical - 1/10
+c_24_amus        = gv.gvar('5.310(54)e-09')
+c_24_amus_rt     = gv.gvar('0.999033(56)')
+c_24_amus_diff   = gv.gvar('-5.14(31)e-12')
+#---------------------------------------#
+c_24_phi_m       = gv.gvar('1.0342(62) ')
+c_24_phi_m_rt    = gv.gvar('1.0003(12)')
+c_24_phi_m_diff  = gv.gvar('0.3(1.2)') # MeV
+c_24_phi_f       = gv.gvar('242.6(2.7)') # MeV
+c_24_phi_f_rt    = gv.gvar('1.0002(48)')
+c_24_phi_f_diff  = gv.gvar('0.06(1.17)')
+#--------------------------------------------#
+c_40_amus        = gv.gvar('5.308(54)e-09')
+c_40_amus_rt     = gv.gvar('0.999015(57)')
+c_40_amus_diff   = gv.gvar('-5.23(31)e-12')
+#---------------------------------------#
+c_40_phi_m       = gv.gvar('1.0361(62)')
+c_40_phi_m_rt    = gv.gvar('1.0002(21)')
+c_40_phi_m_diff  = gv.gvar('0.3(2.2)') 	# MeV
+c_40_phi_f       = gv.gvar('244.4(2.6)')
+c_40_phi_f_rt    = gv.gvar('1.0001(79)')
+c_40_phi_f_diff  = gv.gvar('0.02(1.93)')
+## Q=2e/3 - unphysical - just the diffs
+c_2Q_amus_diff   = gv.gvar('-9.48(27)e-12')
+c_2Q_amus_rt     = gv.gvar('0.998170(49)')
+c_2Q_phi_m_rt  = gv.gvar('1.000942(40)') 	# MeV
+c_2Q_phi_f_rt  = gv.gvar('1.00103(20)')
+#------------------------------------------#
+c_24_2Q_amus_diff = gv.gvar('-8.57(49)e-12')
+c_24_2Q_amus_rt   = gv.gvar('0.998387(90)')
+c_24_2Q_phi_m_rt  = gv.gvar('1.0009(13)') 	# MeV
+c_24_2Q_phi_f_rt  = gv.gvar('1.0010(53)')
+#---------------------------------------------#
+c_40_2Q_amus_diff = gv.gvar('-9.20(50)e-12')
+c_40_2Q_amus_rt   = gv.gvar('0.998269(92)')
+c_40_2Q_phi_m_rt  = gv.gvar('1.0010(21)') 	# MeV
+c_40_2Q_phi_f_rt  = gv.gvar('1.0014(79)')
+
+# order for FV lists is [24, 40, 48]
+coarseFV_amus = [ c_24_amus, c_40_amus, c_amus ]
+coarseFV_amus_diff = [ c_24_amus_diff, c_40_amus_diff, c_amus_diff ]
+coarseFV_amus_rt = [ c_24_amus_rt, c_40_amus_rt, c_amus_rt ]  
+coarseFV_phi_m_diff = [ c_24_phi_m_diff, c_40_phi_m_diff, c_phi_m_diff ]
+coarseFV_phi_f_diff = [ c_24_phi_f_diff, c_40_phi_f_diff, c_phi_f_diff ]
+coarseFV_phi_m_rt = [ c_24_phi_m_rt, c_40_phi_m_rt, c_phi_m_rt ]
+coarseFV_phi_f_rt = [ c_24_phi_f_rt, c_40_phi_f_rt, c_phi_f_rt ]
+coarseFV2Q_amus_diff = [ c_24_2Q_amus_diff, c_40_2Q_amus_diff, c_2Q_amus_diff ]
+coarseFV2Q_amus_rt = [ c_24_2Q_amus_rt, c_40_2Q_amus_rt, c_2Q_amus_rt ]  
+coarseFV2Q_phi_m_rt = [ c_24_2Q_phi_m_rt, c_40_2Q_phi_m_rt, c_2Q_phi_m_rt ]
+coarseFV2Q_phi_f_rt = [ c_24_2Q_phi_f_rt, c_40_2Q_phi_f_rt, c_2Q_phi_f_rt ]
+
 # [Fine]
-f_amu_s       = gv.gvar('5.356(55)e-09')
-f_amu_rt_s    = gv.gvar('1.0057(98)')
-f_amudiff_s   = gv.gvar('3.0(5.2)e-11')
-f_amudiffrt_s = gv.gvar('0.0057(98)')
+f_amus       = gv.gvar('5.256(52)e-09')
+f_amus_rt    = gv.gvar('0.999159(65)')
+f_amus_diff  = gv.gvar('-4.42(34)e-12')
 #---------------------------------------#
-f_phi_mass    = gv.gvar('1.034(11)')
-f_delta_phi   = gv.gvar('-6.6(9.9)') 	# MeV
-f_fphi        = gv.gvar('0.1190(36)')
-f_fphi_rt     = gv.gvar('0.966(32)')
+f_phi_m       = gv.gvar('1.0268(57)')
+f_phi_m_rt    = gv.gvar('1.0003(13)')
+f_phi_m_diff  = gv.gvar('0.3(1.3)') 	# MeV
+f_phi_f       = gv.gvar('238.0(2.2)')
+f_phi_f_rt    = gv.gvar('1.0001(84)')
+f_phi_f_diff  = gv.gvar('0.02(1.44)')
 ###########################################################
 
-# HPQCD results [For summary: Phys Rev D 101, 034512 (2020) - Table VI]
-hpqcd_amu_s = gv.gvar('53.41(59)e-10') 		# from 2014. isospin symm, no qed
 
-# BMW
-bmw_amu_s = gv.gvar('53.393(89)e-10')	# isospin symm, no qed, only stat error
-
-# Giusti et al.
-giu_amudiff_s = gv.gvar('-0.0053(33)e-10')
-giu_amudiffrt_s = gv.gvar('-0.00010(7)') 
-
-## CHARM MASS
-#--------------------------------------------
-# HPQCD 
-hpqcd_amu_c = gv.gvar('14.40(40)e-10')
-bmw_amu_c = gv.gvar('14.6(1)e-10')

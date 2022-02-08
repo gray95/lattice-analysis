@@ -4,11 +4,11 @@ import numpy as np
 import gvar as gv
 import lsqfit as lsq
 import matplotlib.pyplot as plt
-from commonweal import vc_rt, c_rt , c_diff15, c_diff, vc_diff, vc_diff15
+from results import vc_rt, c_rt , c_diff15, c_diff, vc_diff, vc_diff15
 from gvar import log
 import sys
 
-ydata = vc_diff15
+ydata = vc_diff
 xdata = np.array([3,5,7])
 
 def extrap(x,p):
@@ -16,7 +16,7 @@ def extrap(x,p):
 def fitargs(z):
     dp0 = z
     dp1 = z
-    prior = gv.gvar([gv.gvar(-1.5e-11, dp1), gv.gvar(0, dp1)])
+    prior = gv.gvar([gv.gvar(-2.5e-11, dp1), gv.gvar(0, dp1)])
     return dict(prior=prior, fcn=extrap, data=(xdata, ydata))
 
 #ef extrap(x,p):
@@ -83,13 +83,13 @@ plt.legend(handles=handles,labels=labels,frameon=False,fontsize=14,loc='upper ri
 plt.xlabel(r'$\frac{m_q}{m_l}$', fontsize=25, labelpad=20)
 #plt.ylabel(r'$\frac{a_{\mu}^{\mathrm{qcd+qed}}}{a_{\mu}^{\mathrm{qcd}}}$', rotation=0, labelpad=25, fontsize=20)
 plt.ylabel(r'$\delta a_{\mu}$', rotation=0, labelpad=25, fontsize=20)
-plt.title('0.12fm ensemble - 694 configs')
+plt.title('0.15fm ensemble - 1844 configs')
 
-#plt.ylim(top=0.00)
+plt.ylim(top=0.00)
 #plt.xlim(left=0, right=10)
 
 plt.tight_layout()
-#plt.savefig('../figures/amu_c_diff_15chiXt.png', dpi=500)
+#plt.savefig('../figures/amu_vc_diff_chiXt.png', dpi=500)
 plt.show()
 
 plt.close()

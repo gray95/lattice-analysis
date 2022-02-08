@@ -8,26 +8,27 @@ from commonweal import w0overa, hbarc, w0
 
 OSC       = False
 CORRFIT   = True 
-PLOT      = True
+PLOT      = False
 NOISE     = False 
 SAVEFIG   = False 
 WRITE_LOG = False 
 
 NEXP = range(1,10)            # number of exponentials in fit
-tmin = 2
-tmax = 20
+tmin = 3
+tmax = 15
 bin_size = 1
 
 ##------------------------------------------##
-ensemble = 'coarse'
-corr = 'm0.0527_Pseuodoscalar_Q0.202_chargeAV_outcorr.gpl'
+ensemble = 'ms-tuning-fine'
+corr = 'gpl/m0.0368_Pseuodoscalar_Q0.101_chargeAV_outcorr.gpl'
 basedir = '../data/qqed'
 corrpath  = os.path.join(basedir, ensemble, corr)
 #KEYFMT = 'onemm.{s1}{s2}'
 #tag    = re.sub('{s1}{s2}', '', KEYFMT)
 #ttag   = tag[:-1]
 #otag   = 'o.'
-tag='PSEUDO_E_AV_Q0.202'
+#tag='PSEUDO_E0'
+tag='PSEUDO_E_AV_Q0.101'
 
 data = gv.dataset.avg_data(cf.read_dataset(corrpath, grep=tag))     
 

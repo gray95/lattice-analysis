@@ -6,7 +6,7 @@ from pseudoscalar_fit import fit_data
 import sys
 sys.path.append('../code/plotters')
 import gvar as gv
-from plotlib import jackknife, calc_meff, plot_corr
+#from plotlib import jackknife, calc_meff, plot_corr
 
 from pseudoscalar_fit_params import OSC, CORRFIT, PLOT, SAVEFIG
 from pseudoscalar_fit_params import corrpath, key, otherkey

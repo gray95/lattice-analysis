@@ -27,7 +27,7 @@ from commonweal import w0, w0overa, ZV, ZVqed
 
 lsqfit.LSQFit.fmt_parameter = '%8.4f +- %8.4f'
 #-------------
-a_str = 'c' #|
+a_str = 'f' #|
 #-------------
 hbarc = 0.197326968
 a = (w0/w0overa[a_str])/hbarc		# in units of (GeV)^-1
@@ -38,7 +38,7 @@ ZV = ZV[a_str]
 ZVqed = ZVqed[a_str]*ZV
 
 def main(tstr):
-    dfile = '../data/qqed/FV/large-40/ms_rho_coarse.gpl'
+    dfile = '../data/qqed/fine/ms_fine.gpl'
    
     madedata = make_data(dfile,norm=3.) # factor of 3 for colour (missed in extraction)
     cdata = madedata[0]
@@ -92,8 +92,15 @@ def main(tstr):
     print(fit)
     tstar = tstr 
 
-    print_results(fit, ainv, ZV, ZVqed)
+    p = fit.p
+    E = np.cumsum(p['dE:vec:s'])
+    amp = p['a1:vec:s']
+    Eo = np.cumsum(p['dEo:vec:s'])
+    ampo = p['ao:vec:s']
+    Eqed =  np.cumsum(p['dE:vec:qed:s'])
+    ampqed = p['a1:vec:qed:s']
 
+    print_results(fit, ainv, ZV, ZVqed)
 
     tcut = 200
 
@@ -102,7 +109,6 @@ def main(tstr):
     tags = ['nocharge', 'charge']
     newdata[tags[0]] = cdata[tag01][:tstar+1]
     newdata[tags[1]] = cdata[tag02][:tstar+1]
-
 
     # do replacement of data with fit
 
@@ -136,7 +142,7 @@ def main(tstr):
 
     ## PRINT RESULTS FOR anomaly
     print('\n[s] a_mu[QCD+QED] || ratio || diff || diff_rt\n{0:20}{1:20}{2:20}{3:20}'.format(chargedamus, amus_rt, amus_diff, amus_diff_rt))    
-    inputs = { 'a':a, 'ZV':ZV, 'ZVqed':ZVqed }
+    inputs = { 'a':a, 'ZV':ZV, 'ZVqed':ZVqed, 'a0':amp[0], 'a1':amp[1], 'm0':E[0] }
     outputs = { 'amu':chargedamus, 'amu diff':amus_diff, 'amu rt':amus_rt }
     print(gv.fmt_errorbudget(outputs=outputs, inputs=inputs))
 ######################################################################################
@@ -219,28 +225,28 @@ def print_results(fit, ainv, Zv,Zvqed):
     print("phi mass is %s GeV in qcd"%(phi_mass))
     print("phi mass is %s GeV in qcd+qqed"%(phi_qed_mass))
     print("phi mass diff = %s MeV"%((phi_mass_diff)))
-    print("phi mass ratio = %s"%(phi_mass_rt))
-    print("phi mass diff-ratio = %s \n"%(phi_mass_diff_rt))
+    print("phi mass ratio = %s\n"%(phi_mass_rt))
 
     print("a[0] is %s\n"%(a[0]))
 
-    f_phi_latt = m.sqrt(3) * a[0] * (2.0 / E[0])**(1/2) 
-    f_phi_gev = f_phi_latt * ainv * Zv 
-    f_phi_qed_latt = m.sqrt(3) * aqed[0] * (2.0 / Eqed[0])**(1/2)
-    f_phi_qed_gev = f_phi_qed_latt * ainv * Zvqed
-    f_rt = f_phi_qed_gev/f_phi_gev 
-    f_diff = f_phi_qed_gev - f_phi_gev 
+    f_phi_lat = a[0] * gv.sqrt( 2.0/E[0] )
+    f_phi = 1000 * f_phi_lat * ainv * Zv 
+    f_phi_qed_lat = aqed[0] * gv.sqrt( 2.0/Eqed[0] )
+    f_phi_qed = 1000 * f_phi_qed_lat * ainv * Zvqed
+    f_rt = f_phi_qed/f_phi 
+    f_diff = f_phi_qed - f_phi 
 
-    print("vector leptonic decay constant is %s GeV in qcd"%(f_phi_gev)) 
-    print("vector leptonic decay constant is %s GeV in qcd+qqed"%(f_phi_qed_gev)) 
-    print("vector leptonic decay diff is %s GeV"%(f_diff)) 
-    print("vector leptonic decay constant ratio is %s"%(f_rt)) 
-    print("vector leptonic decay constant diff-ratio is %s\n"%(f_diff/f_rt)) 
+    print("vector leptonic decay constant is %s in lattice units "%(f_phi_lat)) 
+    print("vector leptonic decay constant is %s in lattice units "%(f_phi_qed_lat)) 
+    print("vector leptonic decay constant is %s in MeV "%(f_phi)) 
+    print("vector leptonic decay constant is %s in MeV "%(f_phi_qed)) 
+    print("vector leptonic decay diff is %s MeV"%(f_diff)) 
+    print("vector leptonic decay constant ratio is %s\n"%(f_rt)) 
 
-    outputs = { 'phi M':phi_qed_mass, 'phi f':f_phi_qed_gev, 'M/M0':phi_mass_rt, 'f/f0':f_rt}
+    outputs = { 'phi M':phi_qed_mass, 'phi f':f_phi_qed, 'M/M0':phi_mass_rt, 'f/f0':f_rt, 'M-M0':phi_mass_diff, 'f-f0':f_diff}
     print(gv.fmt_errorbudget(outputs=outputs, inputs=inputs))
     
 
 if __name__ == '__main__':
-    for i in range(17,18):
+    for i in [29]:
         main(i)

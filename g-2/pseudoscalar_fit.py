@@ -10,7 +10,7 @@ import sys
 from pseudoscalar_fit_params import TFIT, TDATA, NEXP, TP
 from pseudoscalar_fit_params import OSC, s_coeff, ainv_vc, ainv_c, ainv_f
 
-ainv = ainv_c
+ainv = ainv_f
 
 def fit_data(filename_in, key, otherkey):
     dset = cf.read_dataset(filename_in) # read data 
@@ -48,13 +48,13 @@ def make_models(key, otherkey):
 def make_prior(N):
     """ Create prior for N-state fit. """
     prior = collections.OrderedDict()    
-    prior['log(a)'] = gv.log(gv.gvar(['1.00(0.99)'] + (N-1)*['0.01(0.99)']))
-    prior['log(dE)'] = gv.log(gv.gvar(['0.5(5)'] + (N-1)*['0.5(5)']))
+    prior['log(a)'] = gv.log(gv.gvar(['0.4(0.4)'] + (N-1)*['0.01(0.99)']))
+    prior['log(dE)'] = gv.log(gv.gvar(['1.0(0.9)'] + (N-1)*['0.5(5)']))
     
     #----------OSC PARAMS-------------#
     if OSC:
-      prior['log(ao)'] = gv.log(gv.gvar(['1.00(0.99)'] + (N-1)*['0.01(0.99)']))    
-      prior['log(dEo)'] = gv.log(gv.gvar(['2.0(5)'] + (N-1)*['0.5(5)']))
+      prior['log(ao)'] = gv.log(gv.gvar(['0.5(0.5)'] + (N-1)*['0.01(0.99)']))    
+      prior['log(dEo)'] = gv.log(gv.gvar(['1.0(0.9)'] + (N-1)*['0.5(5)']))
     return prior
 
 def print_results(fit):
@@ -69,7 +69,7 @@ def print_results(fit):
     print('\n\n\tE (GeV)\t\t\ta')
     print('---------------------------------------------------------')
     for j in range(E.shape[0]):
-        print(" %d:    %s \t\t%s" % (j, ainv*E[j], a[j])) 
+        print(" %d:  %s\t\t %s \t\t%s" % (j, E[j], ainv*E[j], a[j])) 
         
     if OSC:    
         print('\n\n\tEo (GeV)\t\t\tao')

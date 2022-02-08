@@ -7,9 +7,9 @@ import re
 import gvar as gv
 
 
-base = '../data/qqed/vcoarse/a_plus_b'
+base = '../data/qqed/vcoarse/self_e'
 
-name = 'm0.003328_Rho_Q0.gpl'
+name = 'mu_rho_vcoarse.gpl'
 #nname = name[25:]
 filepath = os.path.join(base, name)
 
@@ -17,7 +17,7 @@ f = open(filepath, 'r')
 f1 = f.readlines()
 g = open(base + '/retag_'+ name, 'w+')
 
-retag = ['rho_m0.003328']#, 'rho_m0.001524_ucav', 'rho_m0.003328', 'rho_m0.003328_dcav']
+retag = ['up-nocharge','up-charge']# 'rho_m0.003328', 'rho_m0.003328_dcav']
 
 tag = gv.dataset.Dataset(filepath).keys()
 print(tag, ' getting replaced with: ', retag)
