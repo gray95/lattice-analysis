@@ -61,7 +61,7 @@ plt.ylim(1, 8)
 
 plt.gca().axes.get_yaxis().set_visible(False)
 
-plt.savefig("amu_light_summary.png")
+#plt.savefig("amu_light_summary.png")
 
 plt.show()
 

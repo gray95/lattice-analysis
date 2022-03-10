@@ -15,42 +15,46 @@ import lsqfit as lsq
 def build_prior(nexp, dp, a):
     prior = gv.BufferDict()
 
-    prior.add('log(a1:vec:u)',[log(gv.gvar(a,a*dp)) for i in range(nexp)])
-    prior['log(a1:vec:u)'][0] = log(gv.gvar(0.5*a,0.5*a*dp))
-    prior.add('log(ao:vec:u)',[log(gv.gvar(a,a*dp)) for i in range(nexp)])
-    prior['log(ao:vec:u)'][0] = log(gv.gvar(0.5*a,0.5*a*dp))
-    prior.add('log(dE:vec:u)',[log(gv.gvar(2*a,2*a*dp)) for i in range(nexp)])
-    prior['log(dE:vec:u)'][0] = log(gv.gvar(a,a*dp))
-    prior.add('log(dEo:vec:u)',[log(gv.gvar(a,a*dp)) for i in range(nexp)])
-    prior['log(dEo:vec:u)'][0] = log(gv.gvar(a,a*dp))
-
-    prior.add('log(a1:vec:qed:u)',[log(gv.gvar(a,a*dp)) for i in range(nexp)])
-    prior['log(a1:vec:qed:u)'][0] = log(gv.gvar(0.5*a,0.5*a*dp))
-    prior.add('log(ao:vec:qed:u)',[log(gv.gvar(a,a*dp)) for i in range(nexp)])
-    prior['log(ao:vec:qed:u)'][0] = log(gv.gvar(0.5*a,0.5*a*dp))
-    prior.add('log(dE:vec:qed:u)',[log(gv.gvar(2*a,2*a*dp)) for i in range(nexp)])
-    prior['log(dE:vec:qed:u)'][0] = log(gv.gvar(a,a*dp))
-    prior.add('log(dEo:vec:qed:u)',[log(gv.gvar(a,a*dp)) for i in range(nexp)])
-    prior['log(dEo:vec:qed:u)'][0] = log(gv.gvar(a,a*dp))
-
+    mn = 0.1*a
+    wd = 0.1*dp*a
+    # up like w/out qed
+    prior.add('log(a1:vec:u)',[log(gv.gvar(a,a)) for i in range(nexp)])
+    prior['log(a1:vec:u)'][0] = log(gv.gvar(mn,wd))
+    prior.add('log(ao:vec:u)',[log(gv.gvar(a,a)) for i in range(nexp)])
+    prior['log(ao:vec:u)'][0] = log(gv.gvar(mn,wd))
+    prior.add('log(dE:vec:u)',[log(gv.gvar(a,a)) for i in range(nexp)])
+    prior['log(dE:vec:u)'][0] = log(gv.gvar(a,a))
+    prior.add('log(dEo:vec:u)',[log(gv.gvar(a,a)) for i in range(nexp)])
+    prior['log(dEo:vec:u)'][0] = log(gv.gvar(a,a))
+    # up like with qed
+    prior.add('log(a1:vec:qed:u)',[log(gv.gvar(a,a)) for i in range(nexp)])
+    prior['log(a1:vec:qed:u)'][0] = log(gv.gvar(mn,wd))
+    prior.add('log(ao:vec:qed:u)',[log(gv.gvar(a,a)) for i in range(nexp)])
+    prior['log(ao:vec:qed:u)'][0] = log(gv.gvar(mn,wd))
+    prior.add('log(dE:vec:qed:u)',[log(gv.gvar(a,a)) for i in range(nexp)])
+    prior['log(dE:vec:qed:u)'][0] = log(gv.gvar(a,a))
+    prior.add('log(dEo:vec:qed:u)',[log(gv.gvar(a,a)) for i in range(nexp)])
+    prior['log(dEo:vec:qed:u)'][0] = log(gv.gvar(a,a))
+    # down like w/out qed
     prior.add('log(a1:vec:d)',[log(gv.gvar(a,a*dp)) for i in range(nexp)])
     prior['log(a1:vec:d)'][0] = log(gv.gvar(0.5*a,0.5*a*dp))
     prior.add('log(ao:vec:d)',[log(gv.gvar(a,a*dp)) for i in range(nexp)])
     prior['log(ao:vec:d)'][0] = log(gv.gvar(0.5*a,0.5*a*dp))
-    prior.add('log(dE:vec:d)',[log(gv.gvar(2*a,2*a*dp)) for i in range(nexp)])
-    prior['log(dE:vec:d)'][0] = log(gv.gvar(a,a*dp))
-    prior.add('log(dEo:vec:d)',[log(gv.gvar(a,a*dp)) for i in range(nexp)])
-    prior['log(dEo:vec:d)'][0] = log(gv.gvar(a,a*dp))
-
+    prior.add('log(dE:vec:d)',[log(gv.gvar(a,a)) for i in range(nexp)])
+    prior['log(dE:vec:d)'][0] = log(gv.gvar(a,a))
+    prior.add('log(dEo:vec:d)',[log(gv.gvar(a,a)) for i in range(nexp)])
+    prior['log(dEo:vec:d)'][0] = log(gv.gvar(a,a))
+    # down like with qed
     prior.add('log(a1:vec:qed:d)',[log(gv.gvar(a,a*dp)) for i in range(nexp)])
     prior['log(a1:vec:qed:d)'][0] = log(gv.gvar(0.5*a,0.5*a*dp))
     prior.add('log(ao:vec:qed:d)',[log(gv.gvar(a,a*dp)) for i in range(nexp)])
     prior['log(ao:vec:qed:d)'][0] = log(gv.gvar(0.5*a,0.5*a*dp))
-    prior.add('log(dE:vec:qed:d)',[log(gv.gvar(2*a,2*a*dp)) for i in range(nexp)])
-    prior['log(dE:vec:qed:d)'][0] = log(gv.gvar(a,a*dp))
-    prior.add('log(dEo:vec:qed:d)',[log(gv.gvar(a,a*dp)) for i in range(nexp)])
-    prior['log(dEo:vec:qed:d)'][0] = log(gv.gvar(a,a*dp))
+    prior.add('log(dE:vec:qed:d)',[log(gv.gvar(a,a)) for i in range(nexp)])
+    prior['log(dE:vec:qed:d)'][0] = log(gv.gvar(a,a))
+    prior.add('log(dEo:vec:qed:d)',[log(gv.gvar(a,a)) for i in range(nexp)])
+    prior['log(dEo:vec:qed:d)'][0] = log(gv.gvar(a,a))
 
+    ## strange
     prior.add('log(a1:vec:s)',[log(gv.gvar(1,dp)) for i in range(nexp)])
     prior['log(a1:vec:s)'][0] = log(gv.gvar(0.5, 0.5*dp))
     prior.add('log(ao:vec:s)',[log(gv.gvar(1,dp)) for i in range(nexp)])
@@ -80,12 +84,11 @@ def fitargs(z):
 def build_models(tag01,tag02,tmin,T):
     tdata = range(T)
     tfit = range(tmin,T+1-tmin) # all ts
-    tp = T # periodic
     models = [
-        Corr2(datatag=tag01,tp=tp,tdata=tdata,tfit=tfit,
+        Corr2(datatag=tag01,tp=T,tdata=tdata,tfit=tfit,
             a=('a1:vec:s','ao:vec:s'),b=('a1:vec:s','ao:vec:s'),
             dE=('dE:vec:s','dEo:vec:s'),s=(1.,-1.)), 
-        Corr2(datatag=tag02,tp=tp,tdata=tdata,tfit=tfit,
+        Corr2(datatag=tag02,tp=T,tdata=tdata,tfit=tfit,
             a=('a1:vec:qed:s','ao:vec:qed:s'),b=('a1:vec:qed:s','ao:vec:qed:s'),
             dE=('dE:vec:qed:s','dEo:vec:qed:s'),s=(1.,-1.)),
     ]
@@ -96,7 +99,7 @@ def build_models_ml(tag01,tag02,tag03,tmin,T):
     tdata = range(T)
     tfit = range(tmin,T+1-tmin) # all ts
     
-    tp = T # periodic
+    tp = T 
     models = [
         Corr2(datatag=tag01,tp=tp,tdata=tdata,tfit=tfit,
             a=('a1:vec:u','ao:vec:u'),b=('a1:vec:u','ao:vec:u'),
@@ -115,7 +118,7 @@ def build_models_phys(tag01,tag02,tag03,tag04,tmin,T):
     tdata = range(T)
     tfit = range(tmin,T+1-tmin) # all ts
     
-    tp = T # periodic
+    tp = T 
     models = [
         Corr2(datatag=tag01,tp=tp,tdata=tdata,tfit=tfit,
             a=('a1:vec:u','ao:vec:u'),b=('a1:vec:u','ao:vec:u'),
@@ -134,17 +137,20 @@ def build_models_phys(tag01,tag02,tag03,tag04,tmin,T):
 
 
 
-def make_data(filename,norm=1):
+def make_data(filename,norm=1, binsize=1):
+    print('gpl file:\n %s'%filename)
+    print('norm %d || binsize %d'%(norm, binsize))
     dset = gv.dataset.Dataset(filename)
-    dset = gv.dataset.bin_data(dset, binsize=1)
-    s = gv.dataset.svd_diagnosis(dset)
-    print(dset.keys())
+    dset = gv.dataset.bin_data(dset, binsize=binsize)
+#    s = gv.dataset.svd_diagnosis(dset, models=build_models_ml())
+#    s.plot_ratio(show=True)
     for tag in dset.keys():
         dset[tag] = norm*np.array(dset[tag])
-        #dset[tag] = dset[tag][:3]
-        print("number of cfgs| ", tag, " : ", dset[tag].shape[0]) 
-    cdata = gv.dataset.avg_data(dset)
-    return (cdata, dset.keys(), s.svdcut)
+        print("%d cfgs for tag %s"%(dset[tag].shape[0], tag)) 
+#    cdata = gv.dataset.avg_data(dset)
+#    print('suggested svd cut is %f'%s.svdcut)
+#    sys.exit(0)
+    return (dset, dset.keys())
 
 def print_results(fit, ainv, Zv, Zvqed):
     p = fit.p
@@ -163,11 +169,11 @@ def print_results(fit, ainv, Zv, Zvqed):
     phi_mass_rt = phi_qed_mass/phi_mass
     phi_mass_diff_rt = phi_mass_diff/phi_mass
     print("phi mass is %s GeV in qcd"%(phi_mass))
-    print("phi mass is %s GeV in qcd+qqed"%(phi_qed_mass))
-    print("phi mass diff = %s MeV"%((phi_mass_diff)))
-    print("phi mass ratio = %s\n"%(phi_mass_rt))
+    #print("phi mass is %s GeV in qcd+qqed"%(phi_qed_mass))
+    #print("phi mass diff = %s MeV"%((phi_mass_diff)))
+    #print("phi mass ratio = %s\n"%(phi_mass_rt))
 
-    print("a[0] is %s\n"%(a[0]))
+    #print("a[0] is %s\n"%(a[0]))
 
     f_phi_lat = a[0] * gv.sqrt( 2.0/E[0] )
     f_phi = 1000 * f_phi_lat * ainv * Zv 
@@ -176,13 +182,13 @@ def print_results(fit, ainv, Zv, Zvqed):
     f_rt = f_phi_qed/f_phi 
     f_diff = f_phi_qed - f_phi 
 
-    print("vector leptonic decay constant is %s in lattice units "%(f_phi_lat)) 
-    print("vector leptonic decay constant is %s in lattice units "%(f_phi_qed_lat)) 
+    #print("vector leptonic decay constant is %s in lattice units "%(f_phi_lat)) 
+    #print("vector leptonic decay constant is %s in lattice units "%(f_phi_qed_lat)) 
     print("vector leptonic decay constant is %s in MeV "%(f_phi)) 
-    print("vector leptonic decay constant is %s in MeV "%(f_phi_qed)) 
-    print("vector leptonic decay diff is %s MeV"%(f_diff)) 
-    print("vector leptonic decay constant ratio is %s\n"%(f_rt)) 
+    #print("vector leptonic decay constant is %s in MeV "%(f_phi_qed)) 
+    #print("vector leptonic decay diff is %s MeV"%(f_diff)) 
+    #print("vector leptonic decay constant ratio is %s\n"%(f_rt)) 
 
     outputs = { 'phi M':phi_qed_mass, 'phi f':f_phi_qed, 'M/M0':phi_mass_rt, 'f/f0':f_rt, 'M-M0':phi_mass_diff, 'f-f0':f_diff}
-    print(gv.fmt_errorbudget(outputs=outputs, inputs=inputs))
+   # print(gv.fmt_errorbudget(outputs=outputs, inputs=inputs))
     

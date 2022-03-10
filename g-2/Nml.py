@@ -9,7 +9,6 @@ Edited by Gaurav Ray February 2022
 """
 
 import matplotlib
-matplotlib.use('Agg')
 import os
 import sys
 import lsqfit
@@ -26,7 +25,7 @@ from commonweal import w0overa, w0, ZV, ZVqed
 from fitting import make_data, build_prior, build_models_ml
 
 lsqfit.LSQFit.fmt_parameter = '%8.4f +- %8.4f'
-a_str = 'vc'
+a_str = 'f'
 w0overa = w0overa[a_str]	
 ZV = ZV[a_str] 
 ZVqed = ZVqed[a_str]*ZV 
@@ -34,35 +33,51 @@ ZVqed = ZVqed[a_str]*ZV
 hbarc = 0.197326968
 a = (w0/w0overa)/hbarc		# in units of (GeV)^-1
 
-store_fit = './stored-fits/vector_3ml.p'
-store_results = './results/3ml_results.p'
+store_fit = './fits/vcoarse/7ml_bintest.p'
+store_results = None #'./store/coarse/3ml.p'
 
 print("lattice spacing: ", a)
 
-def main(tstr):
-    dfile = '/home/gray/Desktop/lattice-analysis/data/qqed/vcoarse/3ml_vcoarse_full.gpl'
-   
-    madedata = make_data(dfile,norm=3.) # factor of 3 for colour (missed in extraction)
-    data = madedata[0]
-    T = data.size / len(madedata[1]) 		# extent in time dir
-    tag01 = madedata[1][0]
-    tag02 = madedata[1][1]
-    tag03 = madedata[1][2]		# =tag01 if no isospin breaking
-    print("time extent is: ", T)
-    print(dfile)
-    suggestedsvdcut = madedata[2]
-    
-    pfile = None #"vector_fit.p" # last fit
+binsize = 1
+tmin = 2
+T_STAR = [13]
 
-    tmin = 2
+def main(tstr):
+    dfile = '/home/gray/Desktop/lattice-analysis/data/qqed/fine/7ml_fine.gpl'
+   
+    madedata = make_data(dfile,norm=3.,binsize=2) # factor of 3 for colour (missed in extraction)
+    data = gv.dataset.avg_data(madedata[0])
+    tag01 = list(madedata[1])[0]
+    tag02 = list(madedata[1])[1]
+    tag03 = list(madedata[1])[2]	
+    T = data.size / len(madedata[1]) 		# extent in time dir
+    T = int(T)
+    print("T = %d\ntfit=[%d,%d]"%(T,tmin,T-tmin))
+   ### svd diagnosis ###
+    s = gv.dataset.svd_diagnosis(madedata[0], models=build_models_ml(tag01,tag02,tag03,tmin,T))
+    s.plot_ratio(show=True)
+    sys.exit(0)
+    ####################
+    suggestedsvdcut = s.svdcut
     svdcut = suggestedsvdcut
+    print('svd cut = %f'%svdcut)
 
     fitter = CorrFitter(models=build_models_ml(tag01,tag02,tag03,tmin,T))
+    prior = build_prior(5,10,a.mean)
+
+    p0 = store_fit
     for nexp in [2,3,4,5]:
-        fit = fitter.lsqfit(data=data,prior=build_prior(nexp,3,a.mean),p0=store_fit,maxit=20000,svdcut=svdcut,add_svdnoise=False)
-    print(fit)
+        print("N=%d"%nexp)
+        fit = fitter.lsqfit(data=data,prior=prior,p0=p0,maxit=50000,svdcut=svdcut,add_svdnoise=False, nterm=nexp)
+        p0=fit.pmean
+    print(fit.format(pstyle='m'))
 
-
+#    ### NOISY FIT ###
+#    noisyfit = fitter.lsqfit(data=data,prior=build_prior(5,2.0,a.mean),p0=store_fit,maxit=20000,svdcut=svdcut,add_svdnoise=True)
+#    print("ADD SVD NOISE FIT")
+#    print(noisyfit.format(pstyle='m'))
+#    ##################
+    
     tdata = range(T)
     tfit = range(tmin,T+1-tmin) # all ts
     tp = T
@@ -111,7 +126,6 @@ def main(tstr):
     vpol = g2.fourier_vacpol(newdata[tags[2]], Z=ZVqed, ainv=1/a, periodic=False)
     chargedamud = g2.a_mu(vpol,1/3.)
 
-    ## QUESTION: does changing the order of addition here affect the errors? 
     amu_qcd = unchargedamud+unchargedamuu
     amu_qcdqed = chargedamuu+chargedamud
     amu_rt = amu_qcdqed/amu_qcd
@@ -122,12 +136,12 @@ def main(tstr):
     print("QED+QCD/QCD is %s"%(amu_rt))
     print("[QED+QCD]-QCD = %s"%(amu_diff))
 
-    to_save = {"up-nocharge":unchargedamuu, "up-charge":chargedamuu, "down-nocharge":unchargedamud, "down-charge":chargedamud }
+    to_save = {"up-nocharge":unchargedamuu, "up-charge":chargedamuu, "down-nocharge":unchargedamud, "down-charge":chargedamud, "mq":[ amu_qcd, amu_diff, amu_rt ] }
 
-    gv.dump( to_save, store_results ) 
+    gv.dump( to_save, store_results, add_dependencies=True ) 
 
 ######################################################################################
     
 if __name__ == '__main__':
-    for i in range(13,14):
+    for i in T_STAR:
         main(i)

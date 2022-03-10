@@ -7,9 +7,9 @@ import re
 import gvar as gv
 
 
-base = '../data/qqed/vcoarse/self_e'
+base = '../data/qqed/ms-tuning-fine/'
 
-name = 'mu_rho_vcoarse.gpl'
+name = 'ms0.0368_ps_fine.gpl'
 #nname = name[25:]
 filepath = os.path.join(base, name)
 
@@ -17,10 +17,13 @@ f = open(filepath, 'r')
 f1 = f.readlines()
 g = open(base + '/retag_'+ name, 'w+')
 
-retag = ['up-nocharge','up-charge']# 'rho_m0.003328', 'rho_m0.003328_dcav']
+retag = ['PSm0368q0','PSm0368q101', 'PSm0368q202']
 
 tag = gv.dataset.Dataset(filepath).keys()
-print(tag, ' getting replaced with: ', retag)
+
+print('retagging:\n%s'%filepath)
+for (a,b) in zip(tag, retag):
+    print("%s ----> %s"%(a,b))
 
 for i in range(len(tag)):
   for x in f1:  

@@ -12,19 +12,19 @@ import numpy as np
 #l3264f211b600m00507m0507m628a-coul-v5
 #l4864f211b600m001907m05252m6382 - coarse phys
 # coarse 0.0527 0.01288 0.0092 0.00552
-mass = 'm0.00552'
+mass = 'm0.006'
 
-ensemble = 'coarse'
-corrx = mass+'_Rho_GXGX_Q0.0_outcorr.gpl'
-corry = mass+'_Rho_GYGY_Q0.0_outcorr.gpl'
-corrz = mass+'_Rho_GZGZ_Q0.0_outcorr.gpl'
+ensemble = 'fine/gpl'
+corrx = mass+'_Rho_GXGX_Q0.202_chargeAV_outcorr.gpl'
+corry = mass+'_Rho_GYGY_Q0.202_chargeAV_outcorr.gpl'
+corrz = mass+'_Rho_GZGZ_Q0.202_chargeAV_outcorr.gpl'
 basedir = '../data/qqed'
 
 corrpathx  = os.path.join(basedir, ensemble, corrx)
 corrpathy  = os.path.join(basedir, ensemble, corry)
 corrpathz  = os.path.join(basedir, ensemble, corrz)
 
-outfile = mass+'_Rho_Q0.gpl'
+outfile = mass+'_Rho_iAV_Q0.202_chargeAV_outcorr.gpl'
 outpath = os.path.join(basedir, ensemble, outfile)
 
 #tags = ['onemm.HH', 'onemm.Hh', 'onemm.HR', 'onemm.Hr', 'onemm.RR', 'onemm.RH', 'onemm.Rr', 'onemm.Rh', 'onemm.hH', 'onemm.hR', 'onemm.hr', 'onemm.hh', 'onemm.rR', 'onemm.rH', 'onemm.rh', 'onemm.rr']

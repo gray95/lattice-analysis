@@ -9,7 +9,6 @@ Edited by Gaurav Ray March 2021
 """
 
 import matplotlib
-matplotlib.use('Agg')
 import os
 import sys
 sys.path.append('./plotters')
@@ -39,33 +38,39 @@ print("lattice spacing = %sfm"%(a*hbarc))
 ZV = ZV[a_str]
 ZVqed = ZVqed[a_str]*ZV
 
-def main(tstr):
-    dfile = '../data/qqed/vcoarse/ms_vcoarse.gpl'
-   
-    madedata = make_data(dfile,norm=3.) # factor of 3 for colour (missed in extraction)
-    cdata = madedata[0]
-    T = cdata.size / len(madedata[1]) 		# extent in time dir
-    tag01 = madedata[1][0]
-    tag02 = madedata[1][1]
+base = 'vcoarse/'
+name = 'ms_vcoarse'
+datafile = os.path.join('../data/qqed', base, name+'.gpl')
 
+tmin = 2
+T_STAR = [17]#, 23, 33, 43]
+#T_STAR = [13]
+#T_STAR = range(25,30)
+
+store_fit = './fits/ms.p'
+
+def main(tstr):
+    dfile = datafile
+   
+    madedata = make_data(dfile,norm=3.,binsize=4) # factor of 3 for colour (missed in extraction)
+    data = gv.dataset.avg_data(madedata[0])
+    tag01 = list(madedata[1])[0]
+    tag02 = list(madedata[1])[1]
+    T = data.size / len(madedata[1]) 		# extent in time dir
+    T = int(T)
     print("time extent = %d"%(T))
-    print(dfile)
-    print(len(cdata[tag01]))
     print("t* = %d = %sfm"%(tstr, a*hbarc*tstr))
 
-    suggestedsvdcut = madedata[2]
-    tmin = 2
+    ### svd diagnosis ###
+    s = gv.dataset.svd_diagnosis(madedata[0], models=build_models(tag01,tag02,tmin,T))
+    s.plot_ratio(show=True)
+    suggestedsvdcut = s.svdcut
     svdcut = suggestedsvdcut
+    ####################
 
-    tdata = range(T)
-    global tfit
-    tfit = range(tmin,T+1-tmin) # all ts
-    tp = T
+    print('svd cut = %f'%svdcut)
 
-    
-    pfile = None #"vector_fit.p" # last fit
-    global ccdata
-    ccdata = cdata[tag01]
+    pfile = store_fit # last fit
     
     fitter = CorrFitter(models=build_models(tag01,tag02,tmin,T))
 
@@ -90,8 +95,8 @@ def main(tstr):
     NEXP = range(3,6)
 
     for nexp in NEXP:
-        fit = fitter.lsqfit(data=cdata,prior=build_prior(nexp, 1.0, a.mean), p0=pfile ,maxit=20000,svdcut=svdcut,add_svdnoise=False)
-    print(fit)
+        fit = fitter.lsqfit(data=data,prior=build_prior(nexp, 1.2, a.mean), p0=pfile ,maxit=20000,svdcut=svdcut,add_svdnoise=False)
+    #print(fit.format(pstyle='m'))
     tstar = tstr 
 
     p = fit.p
@@ -109,8 +114,8 @@ def main(tstr):
     newdata = {}
 
     tags = ['nocharge', 'charge']
-    newdata[tags[0]] = cdata[tag01][:tstar+1]
-    newdata[tags[1]] = cdata[tag02][:tstar+1]
+    newdata[tags[0]] = data[tag01][:tstar+1]
+    newdata[tags[1]] = data[tag02][:tstar+1]
 
     # do replacement of data with fit
 
@@ -140,18 +145,19 @@ def main(tstr):
 
     amus_rt = chargedamus/unchargedamus
     amus_diff = chargedamus-unchargedamus
-    amus_diff_rt = amus_diff/unchargedamus
-
-    gv.dump(amus_rt, 'test.p')
+    print("amu is %s"%unchargedamus)
+    print("amu with qed is %s"%chargedamus)
+    print("diff is %s"%amus_diff)
+    info = {"diff":amus_diff, "ratio":amus_rt, "amus":unchargedamus, "amus_qed":chargedamus}
+    #gv.dump( info, './store/'+base+name+'.p', True)
 
     ## PRINT RESULTS FOR anomaly
-    print('\n[s] a_mu[QCD+QED] || ratio || diff || diff_rt\n{0:20}{1:20}{2:20}{3:20}'.format(chargedamus, amus_rt, amus_diff, amus_diff_rt))    
-    inputs = { 'a':a, 'ZV':ZV, 'ZVqed':ZVqed, 'a0':amp[0], 'a1':amp[1], 'm0':E[0] }
+    inputs = { 'fit':fit.p, 'a':a, 'ZV':ZV, 'ZVqed':ZVqed, 'a0':amp[0], 'a1':amp[1], 'm0':E[0] }
     outputs = { 'amu':chargedamus, 'amu diff':amus_diff, 'amu rt':amus_rt }
-    print(gv.fmt_errorbudget(outputs=outputs, inputs=inputs))
+    #print(gv.fmt_errorbudget(outputs=outputs, inputs=inputs))
 ######################################################################################
     
 
 if __name__ == '__main__':
-    for i in [17]:
+    for i in T_STAR:
         main(i)

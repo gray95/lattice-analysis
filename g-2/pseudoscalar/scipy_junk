@@ -1,0 +1,35 @@
+
+###################################################################################
+#### SCIPY DETRITUS
+###############################################################
+####SCIPY########################
+#ef linear(x, c, m):
+#    return m*x + c
+
+#ef err_linear(x,c,c_err, m,m_err) :
+#   return math.sqrt( x**2*m_err**2 + c_err**2 )
+
+#opt, pcov = curve_fit(linear, xdata=xdata, ydata=ydata, sigma=yerr, p0 = [y_int.mean, grad.mean] )
+
+#err = np.sqrt(np.diag(pcov))
+
+#xx = np.linspace(xdata[-1], xdata[0], 100)
+#fitrange = np.linspace(xdata[-1], xdata[0], 100)
+#fitline = extrap(fitrange,fit.p)
+
+#_int = gv.gvar(popt[0], perr[0])
+#radient = gv.gvar(popt[1], perr[1])
+#_model = [ (gradient*x + y_int).mean for x in xx]
+#_err = [ (gradient*x + y_int).sdev for x in xx]
+#f_model = np.array([linear(f,popt[0],popt[1]) for f in xx])
+#f_err = np.array( [ err_linear(f,popt[0],perr[0],popt[1],perr[1]) for f in xx]     )  
+#_plus = np.add(f_model, f_err)
+#_minus = np.subtract(f_model, f_err)
+
+#rint("fitted y-intercept = %e" % popt[0] , "+/- %e" % perr[0] )
+#rint("fitted x-intercept = %e" % (-popt[0]/popt[1]) )
+#rint("fitted gradient = %e" % popt[1] , "+/- %e" % perr[1] )
+#####################################################################
+#
+
+

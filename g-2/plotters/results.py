@@ -1,52 +1,43 @@
 import gvar as gv
+import numpy as np
+import sys
+###[ 3ml , 5ml, 7ml ]  [amu, delta amu, ratio]
 
-### LIGHT QUARK MASS ( << ms ) [ 3ml , 5ml, 7ml ]
-## OUR RESULTS 
-# qcd+qed values
-## COARSE t*~2fm
-c_amu = [gv.gvar('5.172(69)e-08'), gv.gvar('4.824(52)e-08'), gv.gvar('4.530(46)e-08')]
-c_rt = [gv.gvar('0.99966(58)'), gv.gvar('0.99931(23)'), gv.gvar('0.99911(13)')]
-c_diff  = [gv.gvar('-1.8(3.0)e-11'), gv.gvar('-3.3(1.1)e-11'), gv.gvar('-4.06(62)e-11')]
-c_diff_rt = [gv.gvar('-0.00034(58)'), gv.gvar('-0.00069(23)'), gv.gvar('-0.00089(13)')]
-c_diff_phys_ext = gv.gvar('-1.4(2.8)e-11')
-c_rt_phys_ext = gv.gvar('0.99980(57)')
-# t*~1.5fm
-c_amu15 = [gv.gvar('5.199(63)e-08'), gv.gvar('4.834(51)e-08'), gv.gvar('4.534(46)e-08')]
-c_rt15 = [gv.gvar('0.99950(48)'), gv.gvar('0.99928(19)'), gv.gvar('0.99911(12)')]
-c_diff15 = [gv.gvar('-2.6(2.5)e-11'), gv.gvar('-3.46(94)e-11'), gv.gvar('-4.04(53)e-11')]
-c_diff_rt15 = [gv.gvar('-0.00050(48)'), gv.gvar('-0.00072(19)'), gv.gvar('-0.00089(12)')]
-c_diff_phys_ext15 = gv.gvar('-2.1(2.4)e-11')
-#c_rt_phys_ext15 = gv.gvar('')
+#############################################################
+################ VERY COARSE - 0.15fm #######################
 
+pickle23 = {"encoding":"latin1"}    # for compatibility btwn python2/3
 
-vc_3ml = gv.load('../results/3ml_results.p')
-vc_5ml = gv.load('../results/5ml_results.p')
-vc_7ml = gv.load('../results/7ml_results.p')
+vc_phys15= gv.load('../store/vcoarse/mphys15.p', **pickle23)
+vc_phys= gv.load('../store/vcoarse/mphys.p', **pickle23)
+vc_3ml = gv.load('../store/vcoarse/3ml.p', **pickle23)
+vc_5ml = gv.load('../store/vcoarse/5ml.p', **pickle23)
+vc_7ml = gv.load('../store/vcoarse/7ml.p', **pickle23)
+vc_ms = gv.load('../store/vcoarse/ms_vcoarse.p', **pickle23)
 
-vc = [vc_3ml, vc_5ml, vc_7ml]
-## VERY COARSE t*~2fm
-vc_amu = [x['up-nocharge']+x['down-nocharge'] for x in vc]
-vc_rt  = [(x['up-charge']+x['down-charge'])/(x['up-nocharge']+x['down-nocharge']) for x in vc]
-vc_diff= [(x['up-charge']+x['down-charge'])-(x['up-nocharge']+x['down-nocharge']) for x in vc]
-vc_diff_phys_ext = gv.gvar('-3.6(2.4)e-11') 
-vc_rt_phys  = gv.gvar('1.0155(81)') # incl sib
+vc_amu = { "mphys":{1.5:[], 2:[]},"3ml":{1.5:[], 2:[]},"5ml":{1.5:[], 2:[]},"7ml":{1.5:[], 2:[]},"ms":{2.5:[]} }
 
-# t*~1.5fm
-vc_amu15 = [gv.gvar('5.134(80)e-08'), gv.gvar('4.785(58)e-08'), gv.gvar('4.488(49)e-08')]
-vc_rt15  = [gv.gvar('1.0001(51)'), gv.gvar('0.9994(29)'), gv.gvar('0.9991(15)')]
-vc_diff15 = [gv.gvar('7(264)e-12'), gv.gvar('-3(14)e-11'), gv.gvar('-4.1(6.6)e-11')]
-vc_diff_rt15= [gv.gvar('0.0001(51)'), gv.gvar('-0.0006(29)'), gv.gvar('-0.0009(15)')]
-vc_diff_phys_ext15 = [gv.gvar('1(30)e-11')] 
-vc_rt_phys_ext15 = gv.gvar('0.9995(34)')
+vc_up_noqed    = vc_phys["up-nocharge"]
+vc_up_phys_diff= vc_phys["up-charge"] - vc_phys["up-nocharge"]
+vc_down_noqed  = vc_phys["down-nocharge"]
+vc_down_phys_diff   = vc_phys["down-charge"] - vc_phys["down-nocharge"]
+vc_amu_phys    = vc_phys["up-nocharge"]+vc_phys["down-nocharge"]
+vc_amuqed_phys = vc_phys["up-charge"]+vc_phys["down-charge"]
 
+vc_rt_phys     = vc_amuqed_phys/vc_amu_phys
+vc_diff_phys   = vc_amuqed_phys - vc_amu_phys
 
-################## STRANGE MASS ###############################################
+vc_amu["mphys"][2].extend([vc_amu_phys, vc_diff_phys, vc_rt_phys])
+vc_amu["3ml"][2].extend( vc_3ml["mq"] )
+vc_amu["5ml"][2].extend( vc_5ml["mq"] )
+vc_amu["7ml"][2].extend( vc_7ml["mq"] )
+vc_amu["ms"][2.5].extend([vc_ms["amus"], vc_ms["diff"], vc_ms["ratio"]])
 
-#----------------------------------------------
-## [VERY Coarse]- incl qQED
-vc_amus        = gv.gvar('5.144(51)e-09')
-vc_amus_rt     = gv.gvar('0.998889(28)')
-vc_amus_diff   = gv.gvar('-5.72(15)e-12')
+vc_amu_up = [x['up-nocharge'] for x in [vc_3ml, vc_5ml, vc_7ml] ]
+vc_amu_down = [x['down-nocharge'] for x in [vc_3ml, vc_5ml, vc_7ml] ]
+vc_up_diff = [x['up-charge']-x['up-nocharge'] for x in [vc_3ml, vc_5ml, vc_7ml] ]
+vc_down_diff = [x['down-charge']-x['down-nocharge'] for x in [vc_3ml, vc_5ml, vc_7ml] ]
+vc_diff = np.add(vc_up_diff, vc_down_diff)
 #----------------------------------------#
 vc_phi_m       = gv.gvar('1.0365(56)')
 vc_phi_m_rt    = gv.gvar('1.000236(21)')
@@ -63,7 +54,24 @@ vc_phi_f_diff  = gv.gvar('-0.038(28)')
 #vc_fphi       = gv.gvar('')
 #vc_fphi_diff    = gv.gvar('')
 
+#############################################################
+################ COARSE - 0.12fm #######################
 
+# qcd+qed values
+## COARSE t*~2fm
+c_amu = [gv.gvar('5.172(69)e-08'), gv.gvar('4.824(52)e-08'), gv.gvar('4.530(46)e-08')]
+c_rt = [gv.gvar('0.99966(58)'), gv.gvar('0.99931(23)'), gv.gvar('0.99911(13)')]
+c_diff  = [gv.gvar('-1.8(3.0)e-11'), gv.gvar('-3.3(1.1)e-11'), gv.gvar('-4.06(62)e-11')]
+c_diff_rt = [gv.gvar('-0.00034(58)'), gv.gvar('-0.00069(23)'), gv.gvar('-0.00089(13)')]
+c_diff_phys_ext = gv.gvar('-1.4(2.8)e-11')
+c_rt_phys_ext = gv.gvar('0.99980(57)')
+# t*~1.5fm
+c_amu15 = [gv.gvar('5.199(63)e-08'), gv.gvar('4.834(51)e-08'), gv.gvar('4.534(46)e-08')]
+c_rt15 = [gv.gvar('0.99950(48)'), gv.gvar('0.99928(19)'), gv.gvar('0.99911(12)')]
+c_diff15 = [gv.gvar('-2.6(2.5)e-11'), gv.gvar('-3.46(94)e-11'), gv.gvar('-4.04(53)e-11')]
+c_diff_rt15 = [gv.gvar('-0.00050(48)'), gv.gvar('-0.00072(19)'), gv.gvar('-0.00089(12)')]
+c_diff_phys_ext15 = gv.gvar('-2.1(2.4)e-11')
+#c_rt_phys_ext15 = gv.gvar('')
 # [Coarse] t*=21 ~ 2.5fm
 c_amus        = gv.gvar('5.173(52)e-09') # on physical ensemble
 c_amus_rt     = gv.gvar('0.998990(48)')

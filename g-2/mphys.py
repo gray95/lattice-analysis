@@ -33,23 +33,21 @@ ZVqed = ZVqed[a_str]*ZV
 
 a = (w0/w0overa[a_str])/hbarc
 
-pfile = "./stored-fits/vector_mud.p" # last fit
+pfile = None #"./fits/mphys15.p" # last fit
+
+store = None #"./store/vcoarse/mphys15.p"
 
 def main(tstr):
 
     dfile = '/home/gray/Desktop/lattice-analysis/data/qqed/vcoarse/mphys_vcoarse_full.gpl'
-#    tag01 = 'rho_m' + str(mq)
-#    tag02 = 'rho_m' + str(mq) + '_ucav'
-#    tag03 = 'rho_m' + str(mq)
-#    tag04 = 'rho_m' + str(mq) + '_dcav'
-   
-    madedata = make_data(dfile,norm=3.) # factor of 3 for colour (missed in extraction)
+    madedata = make_data(dfile,norm=3., binsize=4) # factor of 3 for colour (missed in extraction)
     data = madedata[0]
     T = data.size / len(madedata[1]) 		# extent in time dir
-    tag01 = madedata[1][0]
-    tag02 = madedata[1][1]
-    tag03 = madedata[1][2]		# =tag01 if no isospin breaking
-    tag04 = madedata[1][3]
+    T = int(T)
+    tag01 = list(madedata[1])[0]
+    tag02 = list(madedata[1])[1]
+    tag03 = list(madedata[1])[2]		# =tag01 if no isospin breaking
+    tag04 = list(madedata[1])[3]
     #sys.exit(0)
 
     #ratiodata = {}
@@ -64,12 +62,13 @@ def main(tstr):
 
     fitter = CorrFitter(models=build_models_phys(tag01,tag02,tag03,tag04, tmin, T))
     for nexp in [2,3,4,5]:
-        fit = fitter.lsqfit(data=data,prior=build_prior(nexp,1.5,a.mean),p0=pfile,maxit=20000,svdcut=svdcut,add_svdnoise=False)
+        fit = fitter.lsqfit(data=data,prior=build_prior(nexp,3.1,a.mean),p0=pfile,maxit=20000,svdcut=svdcut,add_svdnoise=False)
     print(fit)
 
 
     tdata = range(T)
-    tfit = range(tmin,T+1-tmin) # all ts
+    #tfit = range(tmin,T+1-tmin) # all ts
+    tfit = range(tmin, 15) # all ts
     tp = T
 
     tstar = tstr 
@@ -131,25 +130,28 @@ def main(tstr):
     vpol = g2.fourier_vacpol(newdata[tags[3]], Z=ZVqed, ainv=1/a, periodic=False)
     chargedamud = g2.a_mu(vpol,1/3.)
 
-    d_rt = chargedamud/unchargedamud
-    u_rt = chargedamuu/unchargedamuu
     amu_qcd = unchargedamud+unchargedamuu
     amu_qcdqed = chargedamuu+chargedamud
-    amu_rt = amu_qcdqed/amu_qcd
     amu_diff = amu_qcdqed-amu_qcd
-
     d_diff = chargedamud - unchargedamud
     u_diff = chargedamuu - unchargedamuu
 
     print("down diff is %s"%(d_diff))
     print("up diff is %s"%(u_diff))
+    print("amu qcd is %s"%(amu_qcd))
+    print("amu diff is %s"%(amu_diff))
 
-    store_results = {"qcd":amu_qcd, "qcd+qed":amu_qcdqed, "rt":amu_rt, "diff":amu_diff}
+    #inputs = { 'Q0':fitdataunchargedup.p['dE:vec:qed:u'], 'a':1/ainv, 'Zv':Zv, 'Zvqed':Zvqed }
+    inputs = { 'fit':fit.p['ao:vec:u'], 'a':a, 'Zv':ZV, 'Zvqed':ZVqed }
+    outputs = { 'up':unchargedamuu, 'up-diff':u_diff ,'down-qed':chargedamud, 'down-diff':d_diff }
+    print(gv.fmt_errorbudget(outputs, inputs, ndecimal=1))
 
-    gv.dump(store_results, './results/mphys.p')
+    store_results = {"up-nocharge":unchargedamuu, "down-nocharge":unchargedamud, "up-charge":chargedamuu, "down-charge":chargedamud}
+
+    gv.dump(store_results, store, add_dependencies=True)
 
 ############################################################################
 
 if __name__ == '__main__':
-    for i in range(13, 14):
+    for i in range(9, 10):
         main(i)

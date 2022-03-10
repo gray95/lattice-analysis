@@ -34,7 +34,6 @@ def err_linear(x,c,c_err, m,m_err) :
 
 popt, pcov = curve_fit(linear, xdata=m_l, ydata=y, sigma=y_err, p0 = [1, 1] )
 
-
 perr = np.sqrt(np.diag(pcov))
 
 xx = np.linspace(0, 8, 50)

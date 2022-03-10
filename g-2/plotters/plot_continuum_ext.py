@@ -33,18 +33,18 @@ ydata = [vc_diff_phys_ext, c_diff_phys_ext, 0.8*c_diff_phys_ext]
 #    return res
 
 def extrap(x,p):
-    return ( p[0] + p[1]*(x)**2 ) # + p['a'][2]*(point*0.5)**4 )) # + p['a'][3]*mistunings[i]))
+    return p[0] * ( 1 + p[1]*(x)**2 ) # + p['a'][2]*(point*0.5)**4 )) # + p['a'][3]*mistunings[i]))
 
 def fitargs(z):
     dp = z
-    prior = gv.gvar([gv.gvar(-1e-11, dp), gv.gvar(0, dp)])
+    prior = gv.gvar([gv.gvar(3e-10, 1e-8), gv.gvar(0, dp)])
     return dict(prior=prior, fcn=extrap, data=(xdata, ydata))
 
 ##-----------------------------------------------------------------------#########
 
 ## EMPIRICAL BAYES
 #z0 = { 'dp0':10, 'dp1':10 }
-z0 = 1e-6
+z0 = 1e3
 fit, z = lsq.empbayes_fit(z0, fitargs)
 print(fit.format(True))
 print("prior on a[0] that maxmises logGBF: ", z)
