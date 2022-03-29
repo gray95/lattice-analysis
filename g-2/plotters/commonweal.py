@@ -26,11 +26,19 @@ ZV = {"vc": gv.gvar('0.95932(18)'),
       "f": gv.gvar('0.98445(11)'),
       "cFV": gv.gvar('0.97255(22)') } 
 
-ZVqed = {"vc": gv.gvar('0.999544(14)'),
+ZVqedu = {"vc": gv.gvar('0.999544(14)'),
 	 "c": gv.gvar('0.999631(24)'),
 	 "f": gv.gvar('0.999756(32)'),
-         "cFV": gv.gvar('0.999631(24)')     } # Table X [2005.01845] 
+         "cFV": gv.gvar('0.999631(24)')     } # Table X [2005.01845] Q=2/3  
 
+ZVqedd = {}
+
+for ensemble in ZVqedu:
+    ZVqedd[ensemble] = gv.gvar( 1 - (1-ZVqedu[ensemble].mean)/4 , ZVqedu[ensemble].sdev)
+
+# EM quark renorm factor - following MILC - implies Dashen
+delta_u = {'vc':gv.gvar('0.002036(22)'), 'c':gv.gvar('0.002135(53)'), 'f':gv.gvar('0.00209(12)')} 
+delta_d = {'vc':gv.gvar('0.0005027(55)'), 'c':gv.gvar('0.000531(18)'), 'f':gv.gvar('0.00052(12)')}
 
 # HPQCD results [For summary: Phys Rev D 101, 034512 (2020) - Table VI]
 hpqcd_amu_s = gv.gvar('53.41(59)e-10') 		# from 2014. isospin symm, no qed

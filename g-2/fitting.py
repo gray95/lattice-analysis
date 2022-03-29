@@ -137,7 +137,7 @@ def build_models_phys(tag01,tag02,tag03,tag04,tmin,T):
 
 
 
-def make_data(filename,norm=1, binsize=1):
+def make_data(filename, norm=1, binsize=1):
     print('gpl file:\n %s'%filename)
     print('norm %d || binsize %d'%(norm, binsize))
     dset = gv.dataset.Dataset(filename)

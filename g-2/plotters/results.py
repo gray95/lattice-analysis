@@ -3,9 +3,6 @@ import numpy as np
 import sys
 ###[ 3ml , 5ml, 7ml ]  [amu, delta amu, ratio]
 
-#############################################################
-################ VERY COARSE - 0.15fm #######################
-
 pickle23 = {"encoding":"latin1"}    # for compatibility btwn python2/3
 
 vc_phys15= gv.load('../store/vcoarse/mphys15.p', **pickle23)
@@ -14,6 +11,19 @@ vc_3ml = gv.load('../store/vcoarse/3ml.p', **pickle23)
 vc_5ml = gv.load('../store/vcoarse/5ml.p', **pickle23)
 vc_7ml = gv.load('../store/vcoarse/7ml.p', **pickle23)
 vc_ms = gv.load('../store/vcoarse/ms_vcoarse.p', **pickle23)
+
+c_3ml = gv.load('../store/coarse/3ml.p', **pickle23)
+c_5ml = gv.load('../store/coarse/5ml.p', **pickle23)
+c_7ml = gv.load('../store/coarse/7ml.p', **pickle23)
+c_ms = gv.load('../store/coarse/ms_rho_coarse.p', **pickle23)
+
+f_3ml = gv.load('../store/fine/3ml.p', **pickle23)
+f_5ml = gv.load('../store/fine/5ml.p', **pickle23)
+f_7ml = gv.load('../store/fine/7ml.p', **pickle23)
+f_ms = gv.load('../store/fine/ms.p', **pickle23)
+
+#############################################################
+################ VERY COARSE - 0.15fm #######################
 
 vc_amu = { "mphys":{1.5:[], 2:[]},"3ml":{1.5:[], 2:[]},"5ml":{1.5:[], 2:[]},"7ml":{1.5:[], 2:[]},"ms":{2.5:[]} }
 
@@ -57,22 +67,9 @@ vc_phi_f_diff  = gv.gvar('-0.038(28)')
 #############################################################
 ################ COARSE - 0.12fm #######################
 
-# qcd+qed values
-## COARSE t*~2fm
-c_amu = [gv.gvar('5.172(69)e-08'), gv.gvar('4.824(52)e-08'), gv.gvar('4.530(46)e-08')]
-c_rt = [gv.gvar('0.99966(58)'), gv.gvar('0.99931(23)'), gv.gvar('0.99911(13)')]
-c_diff  = [gv.gvar('-1.8(3.0)e-11'), gv.gvar('-3.3(1.1)e-11'), gv.gvar('-4.06(62)e-11')]
-c_diff_rt = [gv.gvar('-0.00034(58)'), gv.gvar('-0.00069(23)'), gv.gvar('-0.00089(13)')]
-c_diff_phys_ext = gv.gvar('-1.4(2.8)e-11')
-c_rt_phys_ext = gv.gvar('0.99980(57)')
-# t*~1.5fm
-c_amu15 = [gv.gvar('5.199(63)e-08'), gv.gvar('4.834(51)e-08'), gv.gvar('4.534(46)e-08')]
-c_rt15 = [gv.gvar('0.99950(48)'), gv.gvar('0.99928(19)'), gv.gvar('0.99911(12)')]
-c_diff15 = [gv.gvar('-2.6(2.5)e-11'), gv.gvar('-3.46(94)e-11'), gv.gvar('-4.04(53)e-11')]
-c_diff_rt15 = [gv.gvar('-0.00050(48)'), gv.gvar('-0.00072(19)'), gv.gvar('-0.00089(12)')]
-c_diff_phys_ext15 = gv.gvar('-2.1(2.4)e-11')
-#c_rt_phys_ext15 = gv.gvar('')
-# [Coarse] t*=21 ~ 2.5fm
+c_up_diff = [x['up-charge']-x['up-nocharge'] for x in [c_3ml, c_5ml, c_7ml] ]
+c_down_diff = [x['down-charge']-x['down-nocharge'] for x in [c_3ml, c_5ml, c_7ml] ]
+
 c_amus        = gv.gvar('5.173(52)e-09') # on physical ensemble
 c_amus_rt     = gv.gvar('0.998990(48)')
 c_amus_diff   = gv.gvar('-5.23(25)e-12')
@@ -135,9 +132,9 @@ coarseFV2Q_phi_m_rt = [ c_24_2Q_phi_m_rt, c_40_2Q_phi_m_rt, c_2Q_phi_m_rt ]
 coarseFV2Q_phi_f_rt = [ c_24_2Q_phi_f_rt, c_40_2Q_phi_f_rt, c_2Q_phi_f_rt ]
 
 # [Fine]
-f_amus       = gv.gvar('5.256(52)e-09')
-f_amus_rt    = gv.gvar('0.999159(65)')
-f_amus_diff  = gv.gvar('-4.42(34)e-12')
+f_up_diff = [x['up-charge']-x['up-nocharge'] for x in [f_3ml, f_5ml, f_7ml] ]
+f_down_diff = [x['down-charge']-x['down-nocharge'] for x in [f_3ml, f_5ml, f_7ml] ]
+
 #---------------------------------------#
 f_phi_m       = gv.gvar('1.0268(57)')
 f_phi_m_rt    = gv.gvar('1.0003(13)')

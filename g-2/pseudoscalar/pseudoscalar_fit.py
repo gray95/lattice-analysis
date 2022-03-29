@@ -43,7 +43,7 @@ def fit_data(filename_in, keys, otherkeys):
     print("chi2 with noise = %f"%red_chi2)
     if red_chi2 > 1.2:
         print("fit not stable enough under addition of noise")
-        sys.exit(0)
+        #sys.exit(0)
 
     p = fit.p
     obs = { "E:n":[] , "E:u":[], "E:d":[], "a:n":[], "a:u":[], "a:d":[] }

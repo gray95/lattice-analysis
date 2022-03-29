@@ -25,24 +25,12 @@ amu_light[tagC]     = 1.1
 amu_light_err[tagC] = 1.0
 sy[tagC]       =  "bo"
 
-tagUS='coarse-1.5fm-scipy'
+#-4.0(1.4)e-11
+tagUS='this work (preliminary)'
 y[tagUS]        = 4
-amu_light[tagUS]     = -0.136
-amu_light_err[tagUS] =  0.06
+amu_light[tagUS]     = -0.40
+amu_light_err[tagUS] =  0.14
 sy[tagUS]       =  "ko"
-tagUS1='coarse-2fm-gvar'
-y[tagUS1]        = 3
-amu_light[tagUS1]     = -0.14
-amu_light_err[tagUS1] =  0.28
-sy[tagUS1]       =  "kx"
-tagUS1='coarse-1.5fm-gvar'
-y[tagUS1]        = 2
-amu_light[tagUS1]     = -0.21
-amu_light_err[tagUS1] =  0.24
-sy[tagUS1]       =  "k+"
-
-
-
 
 
 for kkk in y :
@@ -61,7 +49,7 @@ plt.ylim(1, 8)
 
 plt.gca().axes.get_yaxis().set_visible(False)
 
-#plt.savefig("amu_light_summary.png")
+plt.savefig("../figures/amu_light_summary.png")
 
 plt.show()
 

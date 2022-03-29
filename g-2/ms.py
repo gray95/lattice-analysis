@@ -22,37 +22,39 @@ from math import exp as num_exp
 import matplotlib.pyplot as plt
 import g2tools as g2
 import lsqfit as lsq
-from commonweal import w0, w0overa, ZV, ZVqed
+from commonweal import w0, w0overa, ZV, ZVqed_d, hbarc
 from fitting import build_models, build_prior, fitargs, make_data
 from fitting import print_results
 
 lsqfit.LSQFit.fmt_parameter = '%8.4f +- %8.4f'
 #-------------
-a_str = 'vc' #|
+a_str = 'f' #|
 #-------------
-hbarc = 0.197326968
 a = (w0/w0overa[a_str])/hbarc		# in units of (GeV)^-1
 ainv = 1/a
 print("lattice spacing = %sfm"%(a*hbarc))
 
 ZV = ZV[a_str]
-ZVqed = ZVqed[a_str]*ZV
+ZVqed = ZVqed_d[a_str]*ZV
 
-base = 'vcoarse/'
-name = 'ms_vcoarse'
+base = 'fine/'
+name = 'ms_rho_finep'
 datafile = os.path.join('../data/qqed', base, name+'.gpl')
 
 tmin = 2
-T_STAR = [17]#, 23, 33, 43]
-#T_STAR = [13]
-#T_STAR = range(25,30)
+T_STAR = [29]
+bnSze = 1
 
-store_fit = './fits/ms.p'
+store_fit = './fits/fine/ms.p'
+store_res = None #'./store/fine/ms.p'
+
+## t* reconstruction
+store_corr = './fits/tstar_fine.p'
 
 def main(tstr):
     dfile = datafile
    
-    madedata = make_data(dfile,norm=3.,binsize=4) # factor of 3 for colour (missed in extraction)
+    madedata = make_data(dfile,norm=3.,binsize=bnSze) # factor of 3 for colour (missed in extraction)
     data = gv.dataset.avg_data(madedata[0])
     tag01 = list(madedata[1])[0]
     tag02 = list(madedata[1])[1]
@@ -74,29 +76,11 @@ def main(tstr):
     
     fitter = CorrFitter(models=build_models(tag01,tag02,tmin,T))
 
-#   z0 = { 'p0' : 0.5, 
-# 				 'nexp' : 5  }
-#   global model
-#   model_noqed, model_qed = build_models(tag01,tag02,tmin,T)
-#   model = model_noqed
-#   fit, z = lsq.empbayes_fit(z0, fitargs)
-#    print(fit.format(True))
-#   print("optimal priors WITHOUT QED: ", z)
-
-#   mm = int( m.floor(z['nexp']) )
-#   NEXP = range( mm, mm+2 ) 
-
-#   ccdata = cdata[tag02]
-#   model = model_qed
-#   fit, z = lsq.empbayes_fit(z0, fitargs)
-#    print(fit.format(True))
-#   print("optimal priors WITH QED: ", z)
-
     NEXP = range(3,6)
 
     for nexp in NEXP:
-        fit = fitter.lsqfit(data=data,prior=build_prior(nexp, 1.2, a.mean), p0=pfile ,maxit=20000,svdcut=svdcut,add_svdnoise=False)
-    #print(fit.format(pstyle='m'))
+        fit = fitter.lsqfit(data=data,prior=build_prior(nexp, 1.7, a.mean), p0=pfile ,maxit=20000,svdcut=svdcut,add_svdnoise=False)
+    print(fit.format(pstyle='m'))
     tstar = tstr 
 
     p = fit.p
@@ -149,7 +133,10 @@ def main(tstr):
     print("amu with qed is %s"%chargedamus)
     print("diff is %s"%amus_diff)
     info = {"diff":amus_diff, "ratio":amus_rt, "amus":unchargedamus, "amus_qed":chargedamus}
-    #gv.dump( info, './store/'+base+name+'.p', True)
+    corr = {"corr":data, "newcorr":newdata}
+
+    gv.dump( info, store_res, True)
+    gv.dump( corr, store_corr, True)
 
     ## PRINT RESULTS FOR anomaly
     inputs = { 'fit':fit.p, 'a':a, 'ZV':ZV, 'ZVqed':ZVqed, 'a0':amp[0], 'a1':amp[1], 'm0':E[0] }

@@ -12,15 +12,12 @@ from commonweal import w0, w0overa, hbarc
 #M_etas_qed = gv.gvar('0.68989(49)')     # BMW 
 #aM_etas = M_etas * (1/hbarc) * (w0/w0overa['f'])
 #print(aM_etas**2)
-aml = 0.00184
 #am = [0.0362, 0.0364, 0.0366, 0.0368]
 am = [3, 5, 7]#, 27.5]
-overa = (w0overa['c']/w0)*hbarc
-Zm = gv.gvar('1.15299(68)')     # from ?
-#print("strange quark mass in units of MeV: %s" % (overa*0.0364*1000*Zm) )
+overa = (w0overa['vc']/w0)*hbarc
 
-#obs = gv.load('../pseudoscalar/ms_ps_fine.p')
-obs = gv.load('../pseudoscalar/ps_coarse.p')
+obs = gv.load('../pseudoscalar/ps_vcoarse.p')
+#obs = gv.load('../pseudoscalar/ps_coarse.p')
 #ratio = [ a**2/b**2 for (a,b) in zip(obs['Eqed'],obs['E']) ]
 #print(ratio)
 PS_sqmass_n = [ y**2 for y in obs['E:n'] ]
@@ -35,7 +32,7 @@ del_dd = [ (B**2-C**2)*overa**2 for (B,C) in zip(obs['E:d'],obs['E:n']) ]
 del del_uu[-1]
 del del_dd[-1]
 
-xdata = np.array([ x for x in am ])
+xdata = am #np.array([ x for x in am ])
 ydata = del_uu
 y_data = [ y.mean for y in del_uu ]
 y_err  = [ y.sdev for y in del_uu ]
@@ -52,7 +49,7 @@ y_err  = [ y.sdev for y in del_uu ]
 def extrap(x,p):
     res = []
     for pt in x:
-        res.append( p[0]*( 1 + p[1]*pt ))#+ p[2]*pt**2 ) )
+        res.append( p[0]*(1 + p[1]*pt + p[2]*pt**2 ) )
     return res
 
 def fitargs(z):
@@ -81,7 +78,7 @@ def fitargs(z):
 print("Fitting UP squared diff")
 print("------------------------------------------------------")
 prior = {}
-prior = gv.gvar([gv.gvar('0.001(2)'), gv.gvar('15(10)')])
+prior = gv.gvar([gv.gvar('0.0001(2)'), gv.gvar('10(50)'), gv.gvar('0(1)')])
 ufit = lsq.nonlinear_fit(data=(xdata, ydata),prior=prior,fcn=extrap, debug=True)
 #print("WITH SQUARED QUARK MASS TERM\n")
 print(ufit)
@@ -89,7 +86,7 @@ print(ufit)
 print("Fitting DOWN squared diff")
 print("------------------------------------------------------")
 ydata = del_dd
-prior = gv.gvar([gv.gvar('0.001(2)'), gv.gvar('15(10)')])
+prior = gv.gvar([gv.gvar('0.0001(2)'), gv.gvar('10(50)'), gv.gvar('0(1)')])
 dfit = lsq.nonlinear_fit(data=(xdata, ydata),prior=prior,fcn=extrap, debug=True)
 #print("WITH SQUARED QUARK MASS TERM\n")
 print(dfit)
@@ -102,8 +99,8 @@ dfitline = extrap(fitrange,dfit.p)
 
 chi_uu = extrap([1], ufit.p)[0]
 chi_dd = extrap([1], dfit.p)[0]
-print("extrapolated value at mq/ml = %f is %s GeV^2\n(not renormalised)"%(2/3,chi_uu))
-print("extrapolated value at mq/ml = %f is %s GeV^2\n(not renormalised)"%(4/3,chi_dd))
+print("extrapolated value at mq/ml = %f is %s GeV^2\n(not renormalised)"%(1,chi_uu))
+print("extrapolated value at mq/ml = %f is %s GeV^2\n(not renormalised)"%(1,chi_dd))
 
 ## compute EM frac shift
 ## all quantities in physcial units (GeV)
@@ -115,11 +112,8 @@ D = Mpi**2 * ( 1 - (l3*Mpi**2)/16*pi**2*Fpi**2 )
 
 del_u = chi_uu/D
 del_d = chi_dd/D
-
-print(1-del_u)
-print(1-del_d)
-
-sys.exit(0)
+print(del_u)
+print(del_d)
 #######PLOTTING
 
 plt.rc('text', usetex=True)
@@ -141,8 +135,8 @@ ax1.fill_between([x for x in fitrange], [y.mean-y.sdev for y in dfitline], [y.me
 ax1.fill_between([x for x in fitrange], [y.mean-y.sdev for y in ufitline], [y.mean+y.sdev for y in ufitline], alpha=0.1,color='red')
 ax1.legend(frameon=False, loc='upper left')
 
-plt.title('0.12fm - 694 cfgs')
+plt.title('0.15fm - 1844 cfgs')
 plt.tight_layout()
-plt.savefig('../figures/mq_tuning_test.png', dpi=500)
+#plt.savefig('../figures/mq_emtuning_fine.png', dpi=500)
 plt.show()
 

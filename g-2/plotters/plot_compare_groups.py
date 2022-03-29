@@ -24,7 +24,7 @@ ax.set_xlabel(r'$\frac{\delta a_{\mu}^{(s)}}{a_{\mu}^{(s)}}$', fontsize=12, labe
 ax.legend(frameon=False,fontsize=15,loc='upper right')
 plt.ylim(top=0.8)
 #plt.xlim(right=0)
-plt.savefig('../figures/g-2_diffstrange.png', dpi=500, bbox_inches="tight")
+#plt.savefig('../figures/g-2_diffstrange.png', dpi=500, bbox_inches="tight")
 #plt.tight_layout()
 plt.show()
 

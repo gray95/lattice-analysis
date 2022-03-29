@@ -5,7 +5,6 @@ import gvar as gv
 import lsqfit as lsq
 import matplotlib.pyplot as plt
 from commonweal import bmw_diff, hbarc
-from results import vc_diff_phys_ext, c_diff_phys_ext
 from results import vc_amus_diff, c_amus_diff, f_amus_diff
 from results import vc_amus_qed, c_amus, f_amus
 import sys
@@ -37,7 +36,7 @@ def extrap(p):
     c0, c1, c2 = p['c']
     a = p['a']
     del_ms = p['msqed']
-    return c0 * ( 1 + c1*(a*0.5)**2 + c2*(del_ms) )
+    return c0 + c1*(a*0.5)**2 + c2*(del_ms) 
 
 def fitargs(z):
     dp1 = 1e-8

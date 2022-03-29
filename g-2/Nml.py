@@ -21,31 +21,35 @@ import math
 from math import exp as num_exp
 import matplotlib.pyplot as plt
 import g2tools as g2
-from commonweal import w0overa, w0, ZV, ZVqed
+from commonweal import w0overa, w0, ZV, ZVqed_u, ZVqed_d, hbarc
 from fitting import make_data, build_prior, build_models_ml
 
 lsqfit.LSQFit.fmt_parameter = '%8.4f +- %8.4f'
 a_str = 'f'
 w0overa = w0overa[a_str]	
-ZV = ZV[a_str] 
-ZVqed = ZVqed[a_str]*ZV 
 
-hbarc = 0.197326968
+ZV = ZV[a_str] 
+ZVqedu = ZVqed_u[a_str]*ZV 
+ZVqedd = ZVqed_d[a_str]*ZV 
+print("ZVqed\nQ=2/3: %s\nQ=1/3: %s"%(ZVqedu,ZVqedd))
 a = (w0/w0overa)/hbarc		# in units of (GeV)^-1
 
-store_fit = './fits/vcoarse/7ml_bintest.p'
-store_results = None #'./store/coarse/3ml.p'
+store_fit = './fits/fine/3ml.p'
+store_results = None #'./store/coarse/7ml.p'
 
 print("lattice spacing: ", a)
 
-binsize = 1
+bnsze = 1
 tmin = 2
-T_STAR = [13]
+T_STAR = [23]
+
+## tstar reconstruction
+store_corr = './fits/tstar_fine_3ml.p'
 
 def main(tstr):
-    dfile = '/home/gray/Desktop/lattice-analysis/data/qqed/fine/7ml_fine.gpl'
+    dfile = '/home/gray/Desktop/lattice-analysis/data/qqed/fine/3ml_rho_finep.gpl'
    
-    madedata = make_data(dfile,norm=3.,binsize=2) # factor of 3 for colour (missed in extraction)
+    madedata = make_data(dfile,norm=3.,binsize=bnsze) # factor of 3 for colour (missed in extraction)
     data = gv.dataset.avg_data(madedata[0])
     tag01 = list(madedata[1])[0]
     tag02 = list(madedata[1])[1]
@@ -55,18 +59,17 @@ def main(tstr):
     print("T = %d\ntfit=[%d,%d]"%(T,tmin,T-tmin))
    ### svd diagnosis ###
     s = gv.dataset.svd_diagnosis(madedata[0], models=build_models_ml(tag01,tag02,tag03,tmin,T))
-    s.plot_ratio(show=True)
-    sys.exit(0)
+    #s.plot_ratio(show=True)
     ####################
     suggestedsvdcut = s.svdcut
     svdcut = suggestedsvdcut
     print('svd cut = %f'%svdcut)
 
     fitter = CorrFitter(models=build_models_ml(tag01,tag02,tag03,tmin,T))
-    prior = build_prior(5,10,a.mean)
+    prior = build_prior(4,5,a.mean)
 
     p0 = store_fit
-    for nexp in [2,3,4,5]:
+    for nexp in [2,3,4]:
         print("N=%d"%nexp)
         fit = fitter.lsqfit(data=data,prior=prior,p0=p0,maxit=50000,svdcut=svdcut,add_svdnoise=False, nterm=nexp)
         p0=fit.pmean
@@ -88,7 +91,7 @@ def main(tstr):
 
     newdata = {}
 
-    tags = ['nocharge', 'up_charge', 'down-charge']
+    tags = ['nocharge', 'up-charge', 'down-charge']
     newdata[tags[0]] = data[tag01][:tstar+1]
     newdata[tags[1]] = data[tag02][:tstar+1]
     newdata[tags[2]] = data[tag03][:tstar+1]
@@ -120,10 +123,10 @@ def main(tstr):
     unchargedamuu = g2.a_mu(vpol,2/3.)
     unchargedamud = g2.a_mu(vpol,1/3.)
  
-    vpol = g2.fourier_vacpol(newdata[tags[1]], Z=ZVqed, ainv=1/a, periodic=False)
+    vpol = g2.fourier_vacpol(newdata[tags[1]], Z=ZVqedu, ainv=1/a, periodic=False)
     chargedamuu = g2.a_mu(vpol,2/3.)
  
-    vpol = g2.fourier_vacpol(newdata[tags[2]], Z=ZVqed, ainv=1/a, periodic=False)
+    vpol = g2.fourier_vacpol(newdata[tags[2]], Z=ZVqedd, ainv=1/a, periodic=False)
     chargedamud = g2.a_mu(vpol,1/3.)
 
     amu_qcd = unchargedamud+unchargedamuu
@@ -137,9 +140,10 @@ def main(tstr):
     print("[QED+QCD]-QCD = %s"%(amu_diff))
 
     to_save = {"up-nocharge":unchargedamuu, "up-charge":chargedamuu, "down-nocharge":unchargedamud, "down-charge":chargedamud, "mq":[ amu_qcd, amu_diff, amu_rt ] }
+    corr = {"corr":data, "newcorr":newdata}
 
     gv.dump( to_save, store_results, add_dependencies=True ) 
-
+    gv.dump( corr, store_corr, add_dependencies=True )
 ######################################################################################
     
 if __name__ == '__main__':
