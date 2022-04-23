@@ -5,70 +5,22 @@ import sys
 
 pickle23 = {"encoding":"latin1"}    # for compatibility btwn python2/3
 
-vc_phys15= gv.load('../store/vcoarse/mphys15.p', **pickle23)
-vc_phys= gv.load('../store/vcoarse/mphys.p', **pickle23)
-vc_3ml = gv.load('../store/vcoarse/3ml.p', **pickle23)
-vc_5ml = gv.load('../store/vcoarse/5ml.p', **pickle23)
-vc_7ml = gv.load('../store/vcoarse/7ml.p', **pickle23)
-vc_ms = gv.load('../store/vcoarse/ms_vcoarse.p', **pickle23)
+#vc = gv.load('../out/svd_test_vt_vc_bin1.p', **pickle23)
+#c = gv.load('../out/svd_test_vt_c_bin1.p', **pickle23)
+#f = gv.load('../out/svd_test_vt_f_bin1.p', **pickle23)
+vc_ms_diff = gv.gvar('-2.20(15)e-12')
+c_ms_diff = gv.gvar('-2.37(26)e-12')
+f_ms_diff = gv.gvar('-2.54(48)e-12')
 
-c_3ml = gv.load('../store/coarse/3ml.p', **pickle23)
-c_5ml = gv.load('../store/coarse/5ml.p', **pickle23)
-c_7ml = gv.load('../store/coarse/7ml.p', **pickle23)
-c_ms = gv.load('../store/coarse/ms_rho_coarse.p', **pickle23)
+vc_up_diff = gv.gvar(['-2.7(3.1)e-11', '-3.3(1.2)e-11', '-3.40(59)e-11'])
+c_up_diff = gv.gvar(['-3.7(9.8)e-11', '-3.6(4.3)e-11', '-3.8(2.3)e-11'])
+f_up_diff = gv.gvar(['2(37)e-11', '-2(19)e-11', '-3(12)e-11'])
 
-f_3ml = gv.load('../store/fine/3ml.p', **pickle23)
-f_5ml = gv.load('../store/fine/5ml.p', **pickle23)
-f_7ml = gv.load('../store/fine/7ml.p', **pickle23)
-f_ms = gv.load('../store/fine/ms.p', **pickle23)
-
+vc_down_diff = gv.gvar(['-1.6(4.3)e-12', '-2.0(2.2)e-12', '-2.1(1.1)e-12'])
+c_down_diff = gv.gvar(['-3(24)e-12', '-2(11)e-12', '-2.4(5.8)e-12'])
+f_down_diff = gv.gvar(['1(93)e-12', '-1(48)e-12', '-2(31)e-12'])
 #############################################################
 ################ VERY COARSE - 0.15fm #######################
-
-vc_amu = { "mphys":{1.5:[], 2:[]},"3ml":{1.5:[], 2:[]},"5ml":{1.5:[], 2:[]},"7ml":{1.5:[], 2:[]},"ms":{2.5:[]} }
-
-vc_up_noqed    = vc_phys["up-nocharge"]
-vc_up_phys_diff= vc_phys["up-charge"] - vc_phys["up-nocharge"]
-vc_down_noqed  = vc_phys["down-nocharge"]
-vc_down_phys_diff   = vc_phys["down-charge"] - vc_phys["down-nocharge"]
-vc_amu_phys    = vc_phys["up-nocharge"]+vc_phys["down-nocharge"]
-vc_amuqed_phys = vc_phys["up-charge"]+vc_phys["down-charge"]
-
-vc_rt_phys     = vc_amuqed_phys/vc_amu_phys
-vc_diff_phys   = vc_amuqed_phys - vc_amu_phys
-
-vc_amu["mphys"][2].extend([vc_amu_phys, vc_diff_phys, vc_rt_phys])
-vc_amu["3ml"][2].extend( vc_3ml["mq"] )
-vc_amu["5ml"][2].extend( vc_5ml["mq"] )
-vc_amu["7ml"][2].extend( vc_7ml["mq"] )
-vc_amu["ms"][2.5].extend([vc_ms["amus"], vc_ms["diff"], vc_ms["ratio"]])
-
-vc_amu_up = [x['up-nocharge'] for x in [vc_3ml, vc_5ml, vc_7ml] ]
-vc_amu_down = [x['down-nocharge'] for x in [vc_3ml, vc_5ml, vc_7ml] ]
-vc_up_diff = [x['up-charge']-x['up-nocharge'] for x in [vc_3ml, vc_5ml, vc_7ml] ]
-vc_down_diff = [x['down-charge']-x['down-nocharge'] for x in [vc_3ml, vc_5ml, vc_7ml] ]
-vc_diff = np.add(vc_up_diff, vc_down_diff)
-#----------------------------------------#
-vc_phi_m       = gv.gvar('1.0365(56)')
-vc_phi_m_rt    = gv.gvar('1.000236(21)')
-vc_phi_m_diff  = gv.gvar('0.245(22)') 	# MeV
-vc_phi_f       = gv.gvar('241.0(1.8)')
-vc_phi_f_rt    = gv.gvar('0.99984(12)')
-vc_phi_f_diff  = gv.gvar('-0.038(28)')
-## Q=2e/3 - unphysical
-#vc_amu_rt_s    = gv.gvar('')
-#vc_amudiff_s   = gv.gvar('')
-#----------------------------------------#
-#vc_phi_mass   = gv.gvar('')
-#vc_delta_phi  = gv.gvar('')
-#vc_fphi       = gv.gvar('')
-#vc_fphi_diff    = gv.gvar('')
-
-#############################################################
-################ COARSE - 0.12fm #######################
-
-c_up_diff = [x['up-charge']-x['up-nocharge'] for x in [c_3ml, c_5ml, c_7ml] ]
-c_down_diff = [x['down-charge']-x['down-nocharge'] for x in [c_3ml, c_5ml, c_7ml] ]
 
 c_amus        = gv.gvar('5.173(52)e-09') # on physical ensemble
 c_amus_rt     = gv.gvar('0.998990(48)')
@@ -132,9 +84,6 @@ coarseFV2Q_phi_m_rt = [ c_24_2Q_phi_m_rt, c_40_2Q_phi_m_rt, c_2Q_phi_m_rt ]
 coarseFV2Q_phi_f_rt = [ c_24_2Q_phi_f_rt, c_40_2Q_phi_f_rt, c_2Q_phi_f_rt ]
 
 # [Fine]
-f_up_diff = [x['up-charge']-x['up-nocharge'] for x in [f_3ml, f_5ml, f_7ml] ]
-f_down_diff = [x['down-charge']-x['down-nocharge'] for x in [f_3ml, f_5ml, f_7ml] ]
-
 #---------------------------------------#
 f_phi_m       = gv.gvar('1.0268(57)')
 f_phi_m_rt    = gv.gvar('1.0003(13)')

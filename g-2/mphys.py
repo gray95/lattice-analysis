@@ -23,13 +23,14 @@ import matplotlib.pyplot as plt
 import g2tools as g2
 from fitting import build_prior, make_data, build_models_phys
 sys.path.append('./plotters')
-from commonweal import hbarc, w0overa, w0, ZV, ZVqed
+from commonweal import hbarc, w0overa, w0, ZV, ZVqedd, ZVqedu
 
 lsqfit.LSQFit.fmt_parameter = '%8.4f +- %8.4f'
 a_str = 'vc'
 
 ZV = ZV[a_str]
-ZVqed = ZVqed[a_str]*ZV
+ZVqedd = ZVqedd[a_str]*ZV
+ZVqedu = ZVqedu[a_str]*ZV
 
 a = (w0/w0overa[a_str])/hbarc
 
@@ -39,10 +40,10 @@ store = None #"./store/vcoarse/mphys15.p"
 
 def main(tstr):
 
-    dfile = '/home/gray/Desktop/lattice-analysis/data/qqed/vcoarse/mphys_vcoarse_full.gpl'
+    dfile = '/home/gray/Desktop/lattice-analysis/data/qqed/vcoarse/mud_vt_vcoarse.gpl'
     madedata = make_data(dfile,norm=3., binsize=4) # factor of 3 for colour (missed in extraction)
     data = madedata[0]
-    T = data.size / len(madedata[1]) 		# extent in time dir
+    T = len(data) / len(madedata[1]) 		# extent in time dir
     T = int(T)
     tag01 = list(madedata[1])[0]
     tag02 = list(madedata[1])[1]
@@ -117,7 +118,7 @@ def main(tstr):
  
     #moments = g2.moments(newdata[tags[1]],Z=ZVqed,ainv=1/a,periodic=False)
     #vpol = g2.vacpol(moments,order=(2,1))
-    vpol = g2.fourier_vacpol(newdata[tags[1]], Z=ZVqed, ainv=1/a, periodic=False)
+    vpol = g2.fourier_vacpol(newdata[tags[1]], Z=ZVqedu, ainv=1/a, periodic=False)
     chargedamuu = g2.a_mu(vpol,2/3.)
 
     #moments = g2.moments(newdata[tags[2]],Z=ZV,ainv=1/a,periodic=False)
@@ -127,7 +128,7 @@ def main(tstr):
  
     #moments = g2.moments(newdata[tags[3]],Z=ZVqed,ainv=1/a,periodic=False)
     #vpol = g2.vacpol(moments,order=(2,1))
-    vpol = g2.fourier_vacpol(newdata[tags[3]], Z=ZVqed, ainv=1/a, periodic=False)
+    vpol = g2.fourier_vacpol(newdata[tags[3]], Z=ZVqedd, ainv=1/a, periodic=False)
     chargedamud = g2.a_mu(vpol,1/3.)
 
     amu_qcd = unchargedamud+unchargedamuu

@@ -7,43 +7,45 @@ import numpy as np
 import corrfitter as cf
 import sys
 
-from pseudoscalar_fit_params import TFIT, TDATA, NEXP, TP, savefile
-from pseudoscalar_fit_params import ainv_vc, ainv_c, ainv_f
-from pseudoscalar_fit_params import tags, corrpath, NMASSES
-
-ainv = ainv_f
+from params import TFIT, TDATA, NEXP, TP, savefile
+from params import ainv, bnsze
+from params import tags, corrpath, NMASSES
 
 def fit_data(filename_in, keys, otherkeys):
-    dset = cf.read_dataset(filename_in) # read data 
-	
-    # If we don't have many samples this next part suggests an svdcut
-    s = gv.dataset.svd_diagnosis(dset, models=make_models(keys, otherkeys))
-    print('svdcut =', s.svdcut) # suggested svdcut
-    #s.plot_ratio(show=True)
 
-    data = make_data(filename_in)
+    dataset = cf.read_dataset(filename_in) # read data 
+    data = gv.dataset.avg_data(dataset)	
+    print("Binsize = %d"%bnsze)
+    # If we don't have many samples this next part suggests an svdcut
+    s = gv.dataset.svd_diagnosis(dataset, models=make_models(keys, otherkeys))
+    print('svdcut =', s.svdcut) # suggested svdcut
+    s.plot_ratio(show=True)
 	
     fitter = cf.CorrFitter(models=make_models(keys, otherkeys))
+
     p0 = None
     for N in NEXP:
         print(30 * '=', 'nterm =', N)
         prior = make_prior(N, NMASSES) 
-        fit = fitter.lsqfit(data=data, prior=prior, p0=p0, svdcut=s.svdcut) # ncg 
+        fit = fitter.lsqfit(data=data, prior=prior, p0=p0, svdcut=s.svdcut)  
         p0 = fit.pmean
-        #print(fit.format(pstyle=None if N < 10 else 'm'))
 
     print(fit.format(pstyle='m'))
     if fit.chi2/fit.dof > 1:
         print("chi2/dof = %f"%(fit.chi2/fit.dof))
         sys.exit(0)
     print_results(fit, NMASSES)
-    # Add noise to fit to check svd cut isn't too severe
-    noisyfit = fitter.lsqfit(data=data, prior=prior, p0=p0, svdcut=s.svdcut, add_svdnoise=True, add_priornoise=True)
+
+    noisyfit = fitter.lsqfit(data=data, prior=prior, p0=p0, svdcut=s.svdcut, add_svdnoise=True, add_priornoise=False)
     red_chi2 = noisyfit.chi2/noisyfit.dof
-    print("chi2 with noise = %f"%red_chi2)
-    if red_chi2 > 1.2:
-        print("fit not stable enough under addition of noise")
-        #sys.exit(0)
+    print("WITH NOISE red chi2 = %f and Q = %f"%(red_chi2,noisyfit.Q))
+
+    ## test fits with simulated data
+    print("SIMULATED FITS")
+    for spdata in fitter.simulated_pdata_iter(n=2, dataset=dataset):
+        # redo fit n times with diff simulated data each time
+        sfit = fitter.lsqfit(pdata=spdata, prior=make_prior(NEXP[-1], NMASSES), p0=p0, svdcut=s.svdcut)
+        print(sfit.format(pstyle='m'))
 
     p = fit.p
     obs = { "E:n":[] , "E:u":[], "E:d":[], "a:n":[], "a:u":[], "a:d":[] }
@@ -58,10 +60,6 @@ def fit_data(filename_in, keys, otherkeys):
     
 ###### END OF MAIN() ####################
 #######################################################################################
-
-def make_data(filename):
-    """ Read data, compute averages/covariance matrix for G(t). """
-    return gv.dataset.avg_data(cf.read_dataset(filename))
 
 def make_models(keys, otherkeys):
     """ Create corrfitter model for G(t). """
@@ -88,12 +86,12 @@ def make_prior(N, NMASSES):
     prior = collections.OrderedDict()   
     for m in range(NMASSES):
         m = 'm'+str(m)
-        prior['log('+m+'a:n)'] = gv.log(gv.gvar(['0.1(1)'] + (N-1)*['0.01(0.99)']))
-        prior['log('+m+'a:u)'] = gv.log(gv.gvar(['0.1(1)'] + (N-1)*['0.01(0.99)']))
-        prior['log('+m+'a:d)'] = gv.log(gv.gvar(['0.1(1)'] + (N-1)*['0.01(0.99)']))
-        prior['log('+m+'dE:n)'] = gv.log(gv.gvar(['1.0(0.9)'] + (N-1)*['0.5(5)']))
-        prior['log('+m+'dE:u)'] = gv.log(gv.gvar(['1.0(0.9)'] + (N-1)*['0.5(5)']))
-        prior['log('+m+'dE:d)'] = gv.log(gv.gvar(['1.0(0.9)'] + (N-1)*['0.5(5)']))
+        prior['log('+m+'a:n)'] = gv.log(gv.gvar(['0.2(2)'] + (N-1)*['0.3(3)']))
+        prior['log('+m+'a:u)'] = gv.log(gv.gvar(['0.2(2)'] + (N-1)*['0.3(3)']))
+        prior['log('+m+'a:d)'] = gv.log(gv.gvar(['0.2(2)'] + (N-1)*['0.3(3)']))
+        prior['log('+m+'dE:n)'] = gv.log(gv.gvar(['0.35(30)'] + (N-1)*['0.6(6)']))
+        prior['log('+m+'dE:u)'] = gv.log(gv.gvar(['0.35(30)'] + (N-1)*['0.6(6)']))
+        prior['log('+m+'dE:d)'] = gv.log(gv.gvar(['0.35(30)'] + (N-1)*['0.6(6)']))
     return prior
 
 def print_results(fit, NMASSES):

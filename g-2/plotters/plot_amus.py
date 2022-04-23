@@ -24,8 +24,8 @@ sy['ETMC']       =  "bo"
 
 #-2.63(41)e-12
 y['This work (preliminary)']        = 6
-amus['This work (preliminary)']     = 0.0263 
-amus_err['This work (preliminary)'] = 0.0041
+amus['This work (preliminary)']     = 0.00896
+amus_err['This work (preliminary)'] = 0.00072
 sy['This work (preliminary)']       =  "ko"
 
 
@@ -45,7 +45,7 @@ plt.xlim(0, 0.04)
 
 plt.gca().axes.get_yaxis().set_visible(False)
 
-plt.savefig("../figures/amu_s_summary.png")
+#plt.savefig("../figures/amu_s_summary.png")
 
 plt.show()
 

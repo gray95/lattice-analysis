@@ -28,8 +28,8 @@ sy[tagC]       =  "bo"
 #-4.0(1.4)e-11
 tagUS='this work (preliminary)'
 y[tagUS]        = 4
-amu_light[tagUS]     = -0.40
-amu_light_err[tagUS] =  0.14
+amu_light[tagUS]     = -0.582
+amu_light_err[tagUS] =  0.080
 sy[tagUS]       =  "ko"
 
 
@@ -49,7 +49,7 @@ plt.ylim(1, 8)
 
 plt.gca().axes.get_yaxis().set_visible(False)
 
-plt.savefig("../figures/amu_light_summary.png")
+#plt.savefig("../figures/amu_light_summary.png")
 
 plt.show()
 

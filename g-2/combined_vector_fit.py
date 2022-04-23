@@ -23,6 +23,7 @@ import lsqfit as lsq
 import collections
 from commonweal import w0, w0overa, ZV, ZVqedd, ZVqedu, hbarc
 from fitting import make_data
+import lsqfit
 
 lsqfit.LSQFit.fmt_parameter = '%8.4f +- %8.4f'
 a_str = 'vc' 
@@ -36,10 +37,10 @@ ZVqedd = ZVqedd[a_str]*ZV
 ZVqedu = ZVqedu[a_str]*ZV
 
 base = 'vcoarse/'
-name = 'Nml_rho_vc'
+name = 'vt_vcoarse'
 datafile = os.path.join('../data/qqed', base, name+'.gpl')
 masses = ['3ml', '5ml', '7ml']
-bnSze = 4
+bnSze = 8
 tmin = 2
 T_STAR = [13]
 
@@ -66,6 +67,10 @@ def main(tstr):
 #    s.plot_ratio(show=True)
     suggestedsvdcut = s.svdcut
     svdcut = suggestedsvdcut
+    print("eigenvalues of correlation matrix")
+    print(s.val)
+    print("suggested svdcut %s"%svdcut)
+    sys.exit(0)
     ####################
 
     print('svd cut = %f'%svdcut)

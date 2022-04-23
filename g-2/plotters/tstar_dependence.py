@@ -49,14 +49,14 @@ print(Y)
 print(T)
 
 plt.errorbar(range(tstar,T), [y.mean for y in Y['3ml']], yerr=[y.sdev for y in Y['3ml']], fmt='h', color='red', label='3ml')
-#plt.errorbar(range(1,T), [y.mean for y in Y['5ml']], yerr=[y.sdev for y in Y['5ml']], fmt='h', color='blue', label='5ml')
-#plt.errorbar(range(1,T), [y.mean for y in Y['7ml']], yerr=[y.sdev for y in Y['7ml']], fmt='h', color='green', label='7ml')
+plt.errorbar(range(tstar,T), [y.mean for y in Y['5ml']], yerr=[y.sdev for y in Y['5ml']], fmt='h', color='blue', label='5ml')
+plt.errorbar(range(tstar,T), [y.mean for y in Y['7ml']], yerr=[y.sdev for y in Y['7ml']], fmt='h', color='green', label='7ml')
 plt.title('very coarse ensemble')
 plt.xlabel('tstar')
-plt.ylim(bottom=4.4e-08, top=6.5e-08)
+plt.ylim(bottom=4.0e-08, top=6.0e-08)
 plt.xlim(left=tstar, right=36)
 plt.ylabel('amu')
-#plt.savefig('../figures/tcut_dependence.png')
+plt.savefig('../figures/tstar_dependence3ml.png')
 plt.show()
 
 
