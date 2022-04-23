@@ -16,3 +16,4 @@ g-2/figures/
 g-2/pseudoscalar/old/
 g-2/pseudoscalar/fits/
 *.pyc
+*.slurm
