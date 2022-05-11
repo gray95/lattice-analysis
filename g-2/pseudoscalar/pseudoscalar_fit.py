@@ -8,19 +8,26 @@ import corrfitter as cf
 import sys
 
 from params import TFIT, TDATA, NEXP, TP, savefile
-from params import ainv, bnsze
+from params import ainv, bnsze, norm
 from params import tags, corrpath, NMASSES
 
 def fit_data(filename_in, keys, otherkeys):
 
-    dataset = cf.read_dataset(filename_in) # read data 
-    data = gv.dataset.avg_data(dataset)	
-    print("Binsize = %d"%bnsze)
+    print('gpl file:\n %s'%filename_in)
+    print('norm %d || binsize %d'%(norm, bnsze))
+    dataset = cf.read_dataset(filename_in, binsize=bnsze) # read data 
+
     # If we don't have many samples this next part suggests an svdcut
     s = gv.dataset.svd_diagnosis(dataset, models=make_models(keys, otherkeys))
     print('svdcut =', s.svdcut) # suggested svdcut
-    s.plot_ratio(show=True)
+#    s.plot_ratio(show=True)
 	
+    for tag in dataset.keys():
+        dataset[tag] = norm*np.array(dataset[tag])
+        print("%d cfgs for tag %s"%(dataset[tag].shape[0], tag)) 
+
+    data = gv.dataset.avg_data(dataset)	
+
     fitter = cf.CorrFitter(models=make_models(keys, otherkeys))
 
     p0 = None
@@ -41,11 +48,11 @@ def fit_data(filename_in, keys, otherkeys):
     print("WITH NOISE red chi2 = %f and Q = %f"%(red_chi2,noisyfit.Q))
 
     ## test fits with simulated data
-    print("SIMULATED FITS")
-    for spdata in fitter.simulated_pdata_iter(n=2, dataset=dataset):
-        # redo fit n times with diff simulated data each time
-        sfit = fitter.lsqfit(pdata=spdata, prior=make_prior(NEXP[-1], NMASSES), p0=p0, svdcut=s.svdcut)
-        print(sfit.format(pstyle='m'))
+#    print("SIMULATED FITS")
+#    for spdata in fitter.simulated_pdata_iter(n=2, dataset=dataset):
+#        # redo fit n times with diff simulated data each time
+#        sfit = fitter.lsqfit(pdata=spdata, prior=make_prior(NEXP[-1], NMASSES), p0=p0, svdcut=s.svdcut)
+#        print(sfit.format(pstyle='m'))
 
     p = fit.p
     obs = { "E:n":[] , "E:u":[], "E:d":[], "a:n":[], "a:u":[], "a:d":[] }

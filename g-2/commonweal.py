@@ -2,7 +2,7 @@ import gvar as gv
 
 ## add in paths to corr files - need to be in gpl format
 
-base = '../data/qqed'
+base = '/home/gray/Desktop/lattice-analysis/data/qqed'
 
 vt_fname = {'vcphys':'vcoarse/mud_vt_vcoarse.gpl', 'vc':'vcoarse/vt_vcoarse.gpl', 'c':'coarse/vt_coarse.gpl', 'f':'fine/vt_fine.gpl'}
 ps_fname = {'vc':'vcoarse/ps_vcoarse.gpl', 'c':'coarse/ps_coarse.gpl', 'f':'fine/ps_fine.gpl'}
@@ -20,9 +20,8 @@ w0overa = { "vc": gv.gvar('1.13215(35)'),
             "cFV": gv.gvar('1.4029(9)') }    #PRD 101,034512 (2020) Table I
 
 
-## renormalisation ov loval vector current at ms?
 
-
+## all numbers at scale of 2 GeV
 ZV = {"vc": gv.gvar('0.95932(18)'), 
       "c": gv.gvar('0.97255(22)'),
       "f": gv.gvar('0.98445(11)'),
@@ -36,17 +35,17 @@ ZVqedu = {"vc": gv.gvar('0.999544(14)'),
 ZVqedd = {}
 
 for ensemble in ZVqedu:
-    ZVqedd[ensemble] = gv.gvar( 1 - (1-ZVqedu[ensemble].mean)/4 , 0.5*ZVqedu[ensemble].sdev)
+    ZVqedd[ensemble] = 1 - (1-ZVqedu[ensemble])/4 
 
 # EM quark renorm factor - following MILC - implies Dashen
-delta_u = {'vc':gv.gvar('0.002049(77)'), 'c':gv.gvar('0.00211(17)'), 'f':gv.gvar('0.0022(12)')} 
-delta_d = {'vc':gv.gvar('0.000503(16)'), 'c':gv.gvar('0.00054(16)'), 'f':gv.gvar('0.0006(11)')}
+delta_u = {'vc':gv.gvar('0.002049(77)'), 'c':gv.gvar('0.00208(12)'), 'f':gv.gvar('0.00210(50)')} 
+delta_d = {'vc':gv.gvar('0.000503(16)'), 'c':gv.gvar('0.00053(10)'), 'f':gv.gvar('0.00055(50)')}
 
 # HPQCD results [For summary: Phys Rev D 101, 034512 (2020) - Table VI]
-hpqcd_amu_s = gv.gvar('53.41(59)e-10') 		# from 2014. isospin symm, no qed
+hpqcd_amus = gv.gvar('53.41(59)e-10') 		# from 2014. isospin symm, no qed
 
 # BMW
-bmw_amu_s = gv.gvar('53.393(89)e-10')	# isospin symm, no qed, only stat error
+bmw_amus = gv.gvar('53.393(89)e-10')	# isospin symm, no qed, only stat error
 
 # Giusti et al.
 giu_amudiff_s = gv.gvar('-0.0053(33)e-10')

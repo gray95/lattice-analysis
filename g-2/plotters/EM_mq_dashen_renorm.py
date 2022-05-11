@@ -13,10 +13,11 @@ from commonweal import w0, w0overa, hbarc
 #aM_etas = M_etas * (1/hbarc) * (w0/w0overa['f'])
 #print(aM_etas**2)
 #am = [0.0362, 0.0364, 0.0366, 0.0368]
-am = [3, 5, 7]#, 27.5]
-overa = (w0overa['c']/w0)*hbarc
 
-obs = gv.load('../pseudoscalar/fits/ps_coarse.p')
+am = [3, 5, 7]#, 27.5]
+overa = (w0overa['vc']/w0)*hbarc
+
+obs = gv.load('../pseudoscalar/fits/ps_vcoarse.p')
 #ratio = [ a**2/b**2 for (a,b) in zip(obs['Eqed'],obs['E']) ]
 #print(ratio)
 PS_sqmass_n = [ y**2 for y in obs['E:n'] ]
@@ -28,6 +29,8 @@ del PS_sqmass_d[-1]
 
 del_uu = [ (A**2-C**2)*overa**2 for (A,C) in zip(obs['E:u'],obs['E:n']) ]
 del_dd = [ (B**2-C**2)*overa**2 for (B,C) in zip(obs['E:d'],obs['E:n']) ]
+#del_uu = [ (A**2-C**2) for (A,C) in zip(obs['E:u'],obs['E:n']) ]
+#del_dd = [ (B**2-C**2) for (B,C) in zip(obs['E:d'],obs['E:n']) ]
 del del_uu[-1]
 del del_dd[-1]
 
@@ -61,23 +64,10 @@ def fitargs(z):
 
 ##########################################################################
 
-#ydata = PS_sqmass
-#z0 = [1.0, 0.3, 0, 0.1] 
-#fit, z = lsq.empbayes_fit(z0, fitargs)
-#print(fit)
-#tuned_ms = (1-( (fit.p[0]+fit.p[1]*0.0364) -1))*0.0364
-#print(tuned_ms)
-#print(fit.p[0]-1)
-#print("prior width that maxmises logGBF: ", z)
-## renormalise with QED
-#Zm_qed = gv.gvar('1.000724(11)')
-#print( "quark mass WITH QED is %s MeV" % (overa*tuned_ms*1000*Zm*Zm_qed) )
-
 # with quark mass squared term - NO emp bayes
 L = 500
 print("Fitting UP squared diff")
 print("------------------------------------------------------")
-uprior = {}
 uprior = gv.gvar([gv.gvar('0(1)e-04'), gv.gvar(0,L), gv.gvar('0(1)')])
 ufit = lsq.nonlinear_fit(data=(xdata, ydata),prior=uprior,fcn=extrap)
 print(ufit)
@@ -94,6 +84,30 @@ print(dfit)
 print("NOISY FIT")
 noisydfit = lsq.nonlinear_fit(data=(xdata, ydata),prior=dprior,fcn=extrap, noise=True)
 print("noisy reduced chi2 is %s"%(noisydfit.chi2/noisydfit.dof))
+
+print("Fit the squared pion mass (in lattice units)")
+ydata = PS_sqmass_n
+mprior = gv.gvar([gv.gvar('2(2)e-03'), gv.gvar(20,10), gv.gvar('0(1)')])
+mfit = lsq.nonlinear_fit(data=(xdata, ydata),prior=mprior,fcn=extrap)
+print(mfit)
+
+## derivatives of M^2 wrt mq eval at 1/3/5/7 ml
+fitrange = np.arange(0.95,7.05,0.5)
+mfitline = extrap(fitrange, mfit.p)
+xknots = fitrange
+yknots = mfitline
+f = gv.cspline.CSpline(xknots, yknots)
+## compute shifts
+mq = [3, 5, 7]
+uu = extrap(mq, ufit.p)
+dd = extrap(mq, dfit.p)
+del_u = [ u/(i*f.D(i)) for (u,i) in zip(uu,mq) ]
+del_d = [ d/(i*f.D(i)) for (d,i) in zip(dd,mq) ]
+
+print(del_u)
+print(del_d)
+
+
 #####################################################################################
 xx = np.linspace(xdata[-1], 1, 100)
 fitrange = np.linspace(xdata[-1], 1, 100)
@@ -103,8 +117,6 @@ dfitline = extrap(fitrange,dfit.p)
 
 chi_uu = extrap([1], ufit.p)[0]
 chi_dd = extrap([1], dfit.p)[0]
-print("extrapolated value at mq/ml = %f is %s GeV^2\n(not renormalised)"%(1,chi_uu))
-print("extrapolated value at mq/ml = %f is %s GeV^2\n(not renormalised)"%(1,chi_dd))
 
 ## compute EM frac shift
 ## all quantities in physcial units (GeV)
@@ -118,6 +130,11 @@ del_u = chi_uu/D
 del_d = chi_dd/D
 print("delta_u is %s"%del_u)
 print("delta_d is %s"%del_d)
+
+print(gv.corr(del_u,del_d))
+
+sys.exit(0)
+
 #######PLOTTING
 
 plt.rc('text', usetex=True)
@@ -139,8 +156,8 @@ ax1.fill_between([x for x in fitrange], [y.mean-y.sdev for y in dfitline], [y.me
 ax1.fill_between([x for x in fitrange], [y.mean-y.sdev for y in ufitline], [y.mean+y.sdev for y in ufitline], alpha=0.1,color='red')
 ax1.legend(frameon=False, loc='upper left')
 
-plt.title('0.12fm - 967 cfgs')
+plt.title('0.09fm - 449 cfgs')
 plt.tight_layout()
-plt.savefig('../figures/mq_emtuning_coarse.png', dpi=500)
+#plt.savefig('../figures/mq_emtuning_coarse.png', dpi=500)
 plt.show()
 

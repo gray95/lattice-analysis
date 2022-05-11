@@ -7,16 +7,16 @@ import re
 import gvar as gv
 
 
-base = '../data/qqed/vcoarse'
+base = '../data/qqed/fine'
 
-name = 'md_vt_vcoarse.gpl'
+name = 'm0.0036_ps_fine.gpl'
 filepath = os.path.join(base, name)
 
 f = open(filepath, 'r')
 f1 = f.readlines()
 g = open(base + '/retag_'+ name, 'w+')
 
-retag = ['VTvcmdq0','VTvcmdq1']
+retag = ['PSf3mlq0','PSf3mlq1','PSf3mlq2']
 
 tag = gv.dataset.Dataset(filepath).keys()
 

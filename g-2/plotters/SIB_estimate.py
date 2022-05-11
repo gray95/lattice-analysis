@@ -14,42 +14,38 @@ vc = gv.load('../out/vc_no_vector_fit.p')
 c = gv.load('../out/c_no_vector_fit.p')
 f= gv.load('../out/f_no_vector_fit.p')
 
-amu_up = np.concatenate((vc['up-charge'],c['up-charge'],f['up-charge']))
+#amu_up = np.concatenate((vc['up-charge'],c['up-charge'],f['up-charge']))
+#amu_down = np.concatenate((vc['down-charge'],c['down-charge'],f['down-charge']))
+
+amu_up = np.concatenate((vc['up-charge'][:-1],c['up-charge'][:-1],f['up-charge'][:-1]))
 amu_down = np.concatenate((vc['down-charge'][:-1],c['down-charge'][:-1],f['down-charge'][:-1]))
 
 print(amu_down.shape)
 ## correlated vector fits
 
 a = [ w0/(hbarc*w0overa[x]) for x in ['vc', 'c', 'f']]
-du = [delta_u['vc'], delta_u['c'], delta_u['f']] 
-dd = [delta_d['vc'], delta_d['c'], delta_d['f']] 
 
-emq = gv.gvar(['3.000(1)', '5.000(1)', '7.000(1)'])
-xdata = {'a':a, 'mq':emq, 'dd':dd, 'du':du}
+emq = gv.gvar(['3.000(1)', '5.000(1)', '7.000(1)'])#, '27.8(1)'])
+xdata = {'a':a, 'mq':emq}
 ydata = {"up":amu_up, "down":amu_down}
 
 
 def make_prior(x):
     prior = gv.BufferDict()
-    prior['uC'] = gv.gvar(['4(3)e-8','0(1)','0(1)','0(2)'])
-    prior['dC'] = gv.gvar(['3(3)e-8','0(1)','0(1)','0(2)'])
+    prior['uC'] = gv.gvar(['4(3)e-8','0(1)','0(1)','0(1)'])
+    prior['dC'] = gv.gvar(['3(3)e-8','0(1)','0(1)','0(1)'])
     prior['mq']= x['mq']
     prior['a'] = x['a']
-    prior['dd']= x['dd']
-    prior['du']= x['du']
     return prior
 
 def fcn(p):
     out = {'up':[], 'down':[]}
-    du = p['du']
-    dd = p['dd']
     A = 0.5*p['a']
     M = p['mq']
-    for (a,d,u) in zip(A,dd,du):
-        u = d = 0
+    for a in A:
         for m in M:
-            out['up'].append( p['uC'][0] * (1 + p['uC'][1]*log(m) + p['uC'][2]*m*(1-u) + p['uC'][3]*a**2 ) )  
-            out['down'].append( p['dC'][0] * (1 + p['dC'][1]*log(m) + p['dC'][2]*m*(1-d) + p['dC'][3]*a**2) ) 
+            out['up'].append( p['uC'][0] * (1 + p['uC'][1]*m + p['uC'][2]*m**2 + p['uC'][3]*a**2 ) )  
+            out['down'].append( p['dC'][0] * (1 + p['dC'][1]*m + p['dC'][2]*m**2 + p['dC'][3]*a**2) ) 
     return out
 
 prior = make_prior(xdata)
@@ -59,9 +55,7 @@ print(fit)
 
 alat = [gv.gvar('0(0)')]+a
 print(alat)
-X = make_prior({'a':alat, 'mq':[1, 2/3, 4/3],
-                'dd':len(alat)*[0], 
-                'du':len(alat)*[0]})
+X = make_prior({'a':alat, 'mq':[1, 2/3, 4/3]})
 
 X['uC'] = fit.p['uC']
 X['dC'] = fit.p['dC']

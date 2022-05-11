@@ -15,8 +15,8 @@ LBL = 'vc'
 NEXP = range(1,7)            # number of exponentials in fit
 tmin = 3
 tmax = 20
-bnsze = 8     
-
+bnsze = 1     
+norm = 3
 ##------------------------------------------##
 
 if LBL=='vc':

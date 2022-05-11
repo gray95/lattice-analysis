@@ -1,26 +1,28 @@
 import gvar as gv
 import numpy as np
 import sys
-###[ 3ml , 5ml, 7ml ]  [amu, delta amu, ratio]
 
-pickle23 = {"encoding":"latin1"}    # for compatibility btwn python2/3
+###                         [ 3ml ,5ml, 7ml, ms ] 
 
-#vc = gv.load('../out/svd_test_vt_vc_bin1.p', **pickle23)
-#c = gv.load('../out/svd_test_vt_c_bin1.p', **pickle23)
-#f = gv.load('../out/svd_test_vt_f_bin1.p', **pickle23)
-vc_ms_diff = gv.gvar('-2.20(15)e-12')
-c_ms_diff = gv.gvar('-2.37(26)e-12')
-f_ms_diff = gv.gvar('-2.54(48)e-12')
+## load fits
+vc = gv.load('/home/gray/Desktop/lattice-analysis/g-2/fits/vt_vc_bin2_tmin2.p')
+c = gv.load('/home/gray/Desktop/lattice-analysis/g-2/fits/vt_c_bin2_tmin2.p')
+f = gv.load('/home/gray/Desktop/lattice-analysis/g-2/fits/vt_f_bin2_tmin2.p')
 
-vc_up_diff = gv.gvar(['-2.7(3.1)e-11', '-3.3(1.2)e-11', '-3.40(59)e-11'])
-c_up_diff = gv.gvar(['-3.7(9.8)e-11', '-3.6(4.3)e-11', '-3.8(2.3)e-11'])
-f_up_diff = gv.gvar(['2(37)e-11', '-2(19)e-11', '-3(12)e-11'])
+# compute diffs
+vc_amud      = vc['down-nocharge']
+vc_down_diff = [ (y2-y1) for (y2,y1) in zip(vc['down-charge'],vc['down-nocharge']) ]
+vc_up_diff =   [ (y2-y1) for (y2,y1) in zip(vc['up-charge'],vc['up-nocharge']) ]
 
-vc_down_diff = gv.gvar(['-1.6(4.3)e-12', '-2.0(2.2)e-12', '-2.1(1.1)e-12'])
-c_down_diff = gv.gvar(['-3(24)e-12', '-2(11)e-12', '-2.4(5.8)e-12'])
-f_down_diff = gv.gvar(['1(93)e-12', '-1(48)e-12', '-2(31)e-12'])
+c_amud      = c['down-nocharge']
+c_down_diff = [ (y2-y1) for (y2,y1) in zip(c['down-charge'],c['down-nocharge']) ]
+c_up_diff =   [ (y2-y1) for (y2,y1) in zip(c['up-charge'],c['up-nocharge']) ]
+
+f_amud      = f['down-nocharge']
+f_down_diff = [ (y2-y1) for (y2,y1) in zip(f['down-charge'],f['down-nocharge']) ]
+f_up_diff =   [ (y2-y1) for (y2,y1) in zip(f['up-charge'],f['up-nocharge']) ]
+
 #############################################################
-################ VERY COARSE - 0.15fm #######################
 
 c_amus        = gv.gvar('5.173(52)e-09') # on physical ensemble
 c_amus_rt     = gv.gvar('0.998990(48)')
@@ -82,15 +84,4 @@ coarseFV2Q_amus_diff = [ c_24_2Q_amus_diff, c_40_2Q_amus_diff, c_2Q_amus_diff ]
 coarseFV2Q_amus_rt = [ c_24_2Q_amus_rt, c_40_2Q_amus_rt, c_2Q_amus_rt ]  
 coarseFV2Q_phi_m_rt = [ c_24_2Q_phi_m_rt, c_40_2Q_phi_m_rt, c_2Q_phi_m_rt ]
 coarseFV2Q_phi_f_rt = [ c_24_2Q_phi_f_rt, c_40_2Q_phi_f_rt, c_2Q_phi_f_rt ]
-
-# [Fine]
-#---------------------------------------#
-f_phi_m       = gv.gvar('1.0268(57)')
-f_phi_m_rt    = gv.gvar('1.0003(13)')
-f_phi_m_diff  = gv.gvar('0.3(1.3)') 	# MeV
-f_phi_f       = gv.gvar('238.0(2.2)')
-f_phi_f_rt    = gv.gvar('1.0001(84)')
-f_phi_f_diff  = gv.gvar('0.02(1.44)')
-###########################################################
-
 
