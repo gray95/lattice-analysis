@@ -4,10 +4,14 @@ import sys
 
 ###                         [ 3ml ,5ml, 7ml, ms ] 
 
-## load fits
-vc = gv.load('/home/gray/Desktop/lattice-analysis/g-2/fits/vt_vc_bin2_tmin2.p')
-c = gv.load('/home/gray/Desktop/lattice-analysis/g-2/fits/vt_c_bin2_tmin2.p')
-f = gv.load('/home/gray/Desktop/lattice-analysis/g-2/fits/vt_f_bin2_tmin2.p')
+vc = gv.load('/home/gray/Desktop/lattice-analysis/g-2/out/vc_nofit.p')
+c = gv.load('/home/gray/Desktop/lattice-analysis/g-2/out/c_nofit.p')
+f = gv.load('/home/gray/Desktop/lattice-analysis/g-2/out/f_nofit.p')
+
+#vc = gv.load('/home/gray/Desktop/lattice-analysis/g-2/fits/vt_vc_bin2_tmin2.p')
+#c = gv.load('/home/gray/Desktop/lattice-analysis/g-2/fits/vt_c_bin2_tmin2.p')
+#f = gv.load('/home/gray/Desktop/lattice-analysis/g-2/fits/vt_f_bin2_tmin2.p')
+
 
 # compute diffs
 vc_amud      = vc['down-nocharge']

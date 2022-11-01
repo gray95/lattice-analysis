@@ -3,7 +3,7 @@ import corrfitter as cf
 import os
 import re
 import sys
-sys.path.append('../plotters')
+sys.path.append('..')
 from commonweal import w0overa, hbarc, w0
 
 CORRFIT   = True 
@@ -11,11 +11,11 @@ PLOT      = False
 NOISE     = False 
 SAVEFIG   = False 
 
-LBL = 'vc'
+LBL = 'f'
 NEXP = range(1,7)            # number of exponentials in fit
-tmin = 3
-tmax = 20
-bnsze = 1     
+tmin = 2
+tmax = 48
+bnsze = 2     
 norm = 3
 ##------------------------------------------##
 

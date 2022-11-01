@@ -7,8 +7,13 @@ base = '/home/gray/Desktop/lattice-analysis/data/qqed'
 vt_fname = {'vcphys':'vcoarse/mud_vt_vcoarse.gpl', 'vc':'vcoarse/vt_vcoarse.gpl', 'c':'coarse/vt_coarse.gpl', 'f':'fine/vt_fine.gpl'}
 ps_fname = {'vc':'vcoarse/ps_vcoarse.gpl', 'c':'coarse/ps_coarse.gpl', 'f':'fine/ps_fine.gpl'}
 
+vtmodels = { 'vc':'/home/gray/Desktop/lattice-analysis/g-2/fits/vt_vc_bin2_tmin2.p', 'c':'/home/gray/Desktop/lattice-analysis/g-2/fits/vt_c_bin2_tmin2.p', 'f':'/home/gray/Desktop/lattice-analysis/g-2/fits/vt_f_bin2_tmin2.p' }
 
+vtfitobj = { 'vc':'/home/gray/Desktop/lattice-analysis/g-2/fits/fitobj/vtFIT_vc_bin2_tmin2.pbz2', 'c':'/home/gray/Desktop/lattice-analysis/g-2/fits/fitobj/vtFIT_c_bin2_tmin2.pbz2', 'f':'/home/gray/Desktop/lattice-analysis/g-2/fits/fitobj/vtFIT_f_bin2_tmin2.pbz2' }
+    
 hbarc = 0.197326968
+m_mu_gev = gv.gvar('0.1056583755(23)')
+alpha = 1/gv.gvar('137.035999157(33)')
 
 w0 = gv.gvar('0.1715(9)')	# fm
 w0_bmw = gv.gvar('0.17236(70)') # including IB

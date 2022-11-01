@@ -8,7 +8,7 @@ import corrfitter as cf
 import sys
 
 from parameters import TFIT, TDATA, NEXP, TP
-from parameters import OSC, s_coeff, ainv_vc, ainv_c, ainv_f
+from parameters import OSC, s_coeff, ainv
 
 def fit_data(filename_in, key, otherkey):
     dset = cf.read_dataset(filename_in) # read data 
@@ -67,12 +67,12 @@ def print_results(fit):
     print('\n\n\tE (GeV)\t\t\ta')
     print('---------------------------------------------------------')
     for j in range(E.shape[0]):
-        print(" %d:    %s \t\t%s" % (j, ainv_f*E[j], a[j])) 
+        print(" %d:    %s \t\t%s" % (j, ainv*E[j], a[j])) 
         
     if OSC:    
         print('\n\n\tEo (GeV)\t\t\tao')
         print('---------------------------------------------------------')
         for j in range(Eo.shape[0]):
-            print(" %d:    %s \t\t%s" % (j, ainv_f*Eo[j], ao[j])) 
+            print(" %d:    %s \t\t%s" % (j, ainv*Eo[j], ao[j])) 
        
     print('\n=====================================================================================\n')

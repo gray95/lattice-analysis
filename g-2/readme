@@ -1,0 +1,6 @@
+
+
+
+rsync -zaPvu --dry-run gray@141.163.13.58:/home/gray/lattice-analysis/g-2/fits/ ./fits/
+
+

@@ -6,8 +6,9 @@
 
 import matplotlib.pyplot as plt
 import gvar as gv
-from commonweal import hbarc, w0, w0overa, ZV, ZVqedd
 import sys
+sys.path.append('..')
+from commonweal import hbarc, w0, w0overa, ZV, ZVqedd
 import dill as pickle
 import bz2
 import lsqfit
@@ -58,27 +59,28 @@ plt.rc('axes', linewidth=0.5)
 fig, (ax1, ax2) = plt.subplots(2, 1, sharex=True)
 
 
-ax1.errorbar( [x.mean for x in xdata], [y.mean for y in phi_mass], xerr=[x.sdev for x in xdata], yerr=[y.sdev for y in phi_mass], fmt='h' ,color='red',lw=1, label='this work', alpha=0.7)
-ax1.errorbar( 0, 1019.461, yerr=0.016, fmt='h', color='black', label='exp', alpha=0.9 )
-ax1.errorbar( 0, 1023.2, yerr=4.2, fmt='h', color='blue', label='HPQCD (2017)', alpha=0.9 )
+ax1.errorbar( [x.mean for x in xdata], [y.mean for y in phi_fdiff], xerr=[x.sdev for x in xdata], yerr=[y.sdev for y in phi_fdiff], fmt='h' ,color='red',lw=1, label='this work', alpha=0.7)
+#ax1.errorbar( 0, 1019.461, yerr=0.016, fmt='h', color='black', label='exp', alpha=0.9 )
+#ax1.errorbar( 0, 1023.2, yerr=4.2, fmt='h', color='blue', label='HPQCD (2017)', alpha=0.9 )
 
 
 
-ax2.errorbar( [x.mean for x in xdata], [y.mean for y in phi_f], xerr=[x.sdev for x in xdata], yerr=[y.sdev for y in phi_f], fmt='h' ,color='red',lw=1, label='this work', alpha=0.7)
-ax2.errorbar( 0, 228.5, yerr=3.6, fmt='h', color='black', label='exp', alpha=0.9 )
-ax2.errorbar( 0, 237.6, yerr=3.0, fmt='h', color='blue', label='HPQCD (2017)', alpha=0.9 )
+ax2.errorbar( [x.mean for x in xdata], [y.mean for y in phi_mdiff], xerr=[x.sdev for x in xdata], yerr=[y.sdev for y in phi_mdiff], fmt='h' ,color='red',lw=1, label='this work', alpha=0.7)
+ax2.errorbar( 0, 1.2, yerr=0, fmt='h', color='black', label='Bijnens hep-ph/9607462', alpha=0.9 )
+#ax2.errorbar( 0, 228.5, yerr=3.6, fmt='h', color='black', label='exp', alpha=0.9 )
+#ax2.errorbar( 0, 237.6, yerr=3.0, fmt='h', color='blue', label='HPQCD (2017)', alpha=0.9 )
 
 ax1.set_xlim(left=-0.001)
 ax2.set_xlabel('$a^2$[fm]', fontsize=25, labelpad=20)
-ax1.set_ylabel('$M_{\phi}$\n[MeV]', fontsize=20, rotation=0, labelpad=40)
-ax2.set_ylabel('$f_{\phi}$\n[MeV]', fontsize=20, rotation=0, labelpad=40)
+ax1.set_ylabel('$\Delta f_{\phi}$\n[MeV]', fontsize=20, rotation=0, labelpad=40)
+ax2.set_ylabel('$\Delta M_{\phi}$\n[MeV]', fontsize=20, rotation=0, labelpad=40)
 ax1.yaxis.set_label_coords(-0.2,0.25)
 ax2.yaxis.set_label_coords(-0.2,0.25)
 #ax1.legend(frameon=False,fontsize=10,loc='upper left')
 ax2.legend(frameon=False,fontsize=10,loc='lower right')
 
 plt.tight_layout()
-plt.savefig('../figures/phi_properties.png', dpi=500, bbox_inches="tight")
+plt.savefig('../figures/phi_qedproperties.png', dpi=500, bbox_inches="tight")
 plt.show()
 
 plt.close()

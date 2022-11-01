@@ -9,17 +9,24 @@ sy        = dict()
 lbmw = "BMW 2020"
 lrbc = "RBC/UKQCD 2018"
 letm = "ETM 2020"
-lus  = "this work"
+lus  = "this work (blinded)"
+lold = "HPQCD 2020 estimate"
 
 y[lbmw]        = 3
 amu_light[lbmw]     = -1.23
-amu_light_err[lbmw] = 0.50
+amu_light_err[lbmw] = 0.40
 sy[lbmw]  =  "ko"
 
-y[lrbc]        = 1
-amu_light[lrbc]     = 5.9
-amu_light_err[lrbc] = 5.9
-sy[lrbc]       =  "ko"
+y[lold]        = 1
+amu_light[lold]     = 0
+amu_light_err[lold] = 5
+sy[lold]       =  "ko"
+
+
+#y[lrbc]        = 1
+#amu_light[lrbc]     = 5.9
+#amu_light_err[lrbc] = 5.9
+#sy[lrbc]       =  "ko"
 
 y[letm]        = 2
 amu_light[letm]     = 1.1
@@ -27,8 +34,8 @@ amu_light_err[letm] = 1.0
 sy[letm]       =  "ko"
 
 y[lus]        = 4
-amu_light[lus]     = -0.4
-amu_light_err[lus] =  0.4
+amu_light[lus]     = -0.13
+amu_light_err[lus] =  0.15
 sy[lus]       =  "k*"
 
 

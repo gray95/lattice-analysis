@@ -23,7 +23,7 @@ import collections
 #---------------------#
 sys.path.append('./plotters')
 from commonweal import w0, w0overa, ZV, ZVqedd, ZVqedu, hbarc
-from commonweal import base, fname_vt
+#from commonweal import base, fname_vt
 from fitting import make_data
 
 ############################################################################
@@ -38,19 +38,20 @@ ZV = ZV[a_str]
 ZVqedd = ZVqedd[a_str]*ZV
 ZVqedu = ZVqedu[a_str]*ZV
 
-name = fname_vt[a_str]
-datafile = os.path.join(base, name)
-masses = ['3ml', '5ml', '7ml', 'ms']
-bnSze = 2
+#name = fname_vt[a_str]
+#datafile = os.path.join(base, name)
+datafile="/home/gray/Desktop/lattice-analysis/data/qqed/ms-tuning-fine/mistune_rho_fine.gpl"
+masses = ['ms-1', 'ms', 'ms1', 'ms2']
+bnSze = 1
 tmin = 2
 NEXP = [1,2,3,4,5]
 Nmax = 7
 # set t* ~ 2fm
-T_STAR = [int(np.ceil(2./(a.mean*hbarc)))]
+T_STAR = [int(np.ceil(2.5/(a.mean*hbarc)))]
 
-store_fitp = './fits/post/vt_'+a_str+'_bin'+str(bnSze)+'.p'
-store_res  = './fits/vt_'+a_str+'_bin'+str(bnSze)+'.p'
-store_FIT = './fits/fitobj/'+a_str+'_FIT_bin'+str(bnSze)+'.pbz2'
+store_fitp = './fits/post/vt_mistuned_'+a_str+'_bin'+str(bnSze)+'.p'
+store_res  = None #'./fits/vt_'+a_str+'_bin'+str(bnSze)+'.p'
+store_FIT = None #'./fits/fitobj/'+a_str+'_FIT_bin'+str(bnSze)+'.pbz2'
 
 ############################################################################
 
@@ -67,9 +68,9 @@ def main(tstr):
     print("t* = %d = %sfm"%(tstr, a*hbarc*tstr))
     TAGS = {'Q0':[s for s in tags if 'q0' in s], 'Q1':[s for s in tags if 'q1' in s], 'Q2':[s for s in tags if 'q2' in s]}
     ### svd diagnosis ###
-    #s = gv.dataset.svd_diagnosis(madedata[0], models=make_models(masses, TAGS, T, tmin))
+    s = gv.dataset.svd_diagnosis(madedata[0], models=make_models(masses, TAGS, T, tmin))
 #    s.plot_ratio(show=True)
-    svdcut = madedata[1]
+    svdcut = s.svdcut
     ####################
 
     print('svd cut = %f'%svdcut)
@@ -85,12 +86,12 @@ def main(tstr):
     print(fit.format(pstyle='m'))
 
     ### NOISY FIT ###
-    noisyfit = fitter.lsqfit(data=data,prior=prior, p0=p0, nterm=NEXP[-1], maxit=30000, svdcut=svdcut, noise=(True,False))
-    print("ADDING SVD NOISE TO FIT\n######################")
-    print(noisyfit.format(pstyle='m'))
+    #noisyfit = fitter.lsqfit(data=data,prior=prior, p0=p0, nterm=NEXP[-1], maxit=30000, svdcut=svdcut, noise=(True,False))
+    #print("ADDING SVD NOISE TO FIT\n######################")
+    #print(noisyfit.format(pstyle='m'))
     ##################
 
-    tcut = 2*T
+    tcut = T
 
     tstar = tstr 
 
@@ -127,13 +128,9 @@ def main(tstr):
         chargedamuu = g2.a_mu(vpol,2/3.)
 
         print("MASS #%d"%M)
-        if M==3:
-            print("strange quark")
-            amu = unchargedamud
-            amuqed = chargedamud
-        else:
-            amu = unchargedamud + unchargedamuu
-            amuqed = chargedamud + chargedamuu
+        print("strange quark")
+        amu = unchargedamud
+        amuqed = chargedamud
 
         amu_diff = amuqed-amu
         amu_rt = amuqed/amu
@@ -158,10 +155,10 @@ def main(tstr):
         outputs = { 'amu':amu, 'diff':amu_diff, 'rt':amu_rt }
         print(gv.fmt_errorbudget(outputs=outputs, inputs=inputs))
 
-    gv.dump( res, store_res,  add_dependencies=True)
+#    gv.dump( res, store_res,  add_dependencies=True)
 
-    with bz2.BZ2File(store_FIT, 'wb') as f:
-        pickle.dump( fit, f )
+#    with bz2.BZ2File(store_FIT, 'wb') as f:
+#        pickle.dump( fit, f )
 
 
     ######################################################################################

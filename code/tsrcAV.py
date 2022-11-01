@@ -11,19 +11,19 @@ import numpy as np
 # l3296f211b630m0074m037m440-coul-v5
 # l4864f211b600m001907m05252m6382 - coarse phys
 # l6496f211b630m0012m0363m432 - fine phys
-ensemble = 'l6496f211b630m0012m0363m432/l6496f211b630m0012m0363m432h-coul'
+ensemble = 'l6496f211b630m0012m0363m432/onemp_z/l6496f211b630m0012m0363m432-coul'
 basedir = '../data/hybrid'
 
-outfile = 'tav_onempx_fine_m432.gpl' 
+outfile = 'tav_onempz_fine_m432.gpl' 
 
 t0 = [y for y in range(0,96,6)]
 
-corr = ['t'+str(i)+'_onemp_fine_m432.gpl' for i in t0]
+corr = ['t'+str(i)+'_onempz_fine_m432.gpl' for i in t0]
 print(corr)
 
 #tags=['onemmy.HH', 'onemmy.Hh', 'onemmy.HR', 'onemmy.Hr', 'onemmy.RR', 'onemmy.RH', 'onemmy.Rr', 'onemmy.Rh', 'onemmy.hH', 'onemmy.hR', 'onemmy.hr', 'onemmy.hh', 'onemmy.rR', 'onemmy.rH', 'onemmy.rh', 'onemmy.rr']
 #tags=['onempx.ll', 'onempy.ll', 'onempz.ll', 'onempx.gl', 'onempy.gl', 'onempz.gl', 'onempx.lg', 'onempy.lg', 'onempz.lg', 'onempx.gg', 'onempy.gg', 'onempz.gg']
-tags=['onempx.ll', 'onempx.gl', 'onempx.lg', 'onempx.gg']
+tags=['onempz.ll', 'onempz.gl', 'onempz.lg', 'onempz.gg']
 
 corrpath = []
 C        = []
@@ -35,7 +35,8 @@ keys = list(C[0].keys())
 print(type(keys))
 #sys.exit(0)
 for key in keys:
-  tmp=np.average( (np.array( [C[j][key] for j in range(len(C))] ) ) , axis=0) 
+  #tmp=np.average( (np.array( [C[j][key] for j in range(len(C))] ) ) , axis=0) 
+  tmp=np.average( [ C[j][key] for j in range(len(C)) ] , axis=0) 
   print(tmp.shape)
   corrav.append(tmp)
 
