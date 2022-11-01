@@ -17,5 +17,6 @@ g-2/gm2Models/
 g-2/figures/
 g-2/pseudoscalar/old/
 g-2/pseudoscalar/fits/
+g-2/g2-conn-blindfactor.bin
 *.pyc
 *.slurm
