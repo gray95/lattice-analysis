@@ -1,4 +1,5 @@
 corrfitter/
+code/out/
 g2tools/
 figures/
 data/
@@ -12,6 +13,7 @@ g-2/old/
 g-2/misc/
 g-2/out/
 g-2/fits/
+g-2/gm2Models/
 g-2/figures/
 g-2/pseudoscalar/old/
 g-2/pseudoscalar/fits/
